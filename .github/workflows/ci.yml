@@ -4,16 +4,31 @@ on:
   push:
     branches: [ '**' ]
   pull_request:
+  # 每日跟随 ddd 仓库 main 验证一次：ddd 基座/网关核心的改动发布后，
+  # 骨架能及早暴露兼容性问题，而不必等骨架自身有提交。
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+# 同一分支的新提交取消进行中的旧构建，避免重复消耗
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     steps:
       # 以子目录布局检出自有仓库与 ddd 仓库，还原 relativePath 指向的 ../ddd/ddd-base 结构
       - uses: actions/checkout@v4
         with:
           path: ddd-scaffold
 
+      # ddd 默认跟随 main（骨架要求与最新基座兼容）；如需可复现构建，可加 ref: <commit-sha>
       - uses: actions/checkout@v4
         with:
           repository: IanGall/ddd

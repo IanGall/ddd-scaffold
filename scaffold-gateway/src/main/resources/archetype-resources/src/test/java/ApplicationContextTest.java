@@ -4,7 +4,7 @@ import cn.iantech.api.model.auth.AuthIdentityDTO;
 import cn.iantech.api.model.auth.AuthTokenDTO;
 import cn.iantech.api.model.customer.CustomerLoginReq;
 import cn.iantech.api.model.customer.CustomerUserDTO;
-import ${package}.service.GatewayAuthClient;
+import cn.iantech.gateway.core.service.GatewayAuthClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;

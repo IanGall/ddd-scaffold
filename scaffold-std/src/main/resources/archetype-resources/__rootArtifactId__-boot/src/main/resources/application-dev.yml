@@ -5,7 +5,7 @@ channel:
   security:
     encryption:
       key-id: ${symbol_dollar}{CHANNEL_ENCRYPTION_KEY_ID:dev-key-v1}
-      master-key: ${symbol_dollar}{CHANNEL_ENCRYPTION_MASTER_KEY:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}
+      master-key: ${symbol_dollar}{CHANNEL_ENCRYPTION_MASTER_KEY}
 
 # 数据库配置 - sharding-jdbc 分库分表
 spring:
@@ -17,7 +17,8 @@ spring:
       database: ${symbol_dollar}{REDIS_DATABASE:0}
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-    url: jdbc:shardingsphere:classpath:sharding/sharding-jdbc-dev.yaml
+    # placeholder-type=environment：ShardingSphere 按环境变量渲染分片配置中的数据源账号与口令占位符
+    url: jdbc:shardingsphere:classpath:sharding/sharding-jdbc-dev.yaml?placeholder-type=environment
   kafka:
     bootstrap-servers: ${symbol_dollar}{KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
     producer:
