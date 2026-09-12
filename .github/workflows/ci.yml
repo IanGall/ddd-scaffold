@@ -14,7 +14,6 @@ jobs:
         with:
           path: ddd-scaffold
 
-      # TODO: 待 ddd 远端仓库建仓后确认仓库名（当前为占位）
       - uses: actions/checkout@v4
         with:
           repository: IanGall/ddd
