@@ -24,7 +24,23 @@ COVERAGE_AGENT_PORT="${COVERAGE_AGENT_PORT:-6301}"
 COVERAGE_INCLUDES="${COVERAGE_INCLUDES:-cn.iantech.*}"
 COVERAGE_PROFILE="${COVERAGE_PROFILE:-dev}"
 
-JACOCO_VERSION="${JACOCO_VERSION:-0.8.13}"
+# JaCoCo 版本优先读仓库根目录的 .mvn/jacoco-version（生成工程后可自行维护），
+# 找不到时回退到与 ddd-base 父 pom 一致的默认值；可用 JACOCO_VERSION 环境变量覆盖。
+read_jacoco_version() {
+  local probe="${SCRIPT_DIR}"
+  local i=0
+  while (( i < 12 )); do
+    if [[ -f "${probe}/.mvn/jacoco-version" ]]; then
+      tr -d '[:space:]' < "${probe}/.mvn/jacoco-version"
+      return 0
+    fi
+    probe="$(dirname "${probe}")"
+    (( i++ )) || true
+  done
+  return 1
+}
+
+JACOCO_VERSION="${JACOCO_VERSION:-$(read_jacoco_version || echo '0.8.13')}"
 JACOCO_AGENT_JAR="${JACOCO_AGENT_JAR:-${HOME}/.m2/repository/org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar}"
 
 if [[ ! -f "${JACOCO_AGENT_JAR}" ]]; then
