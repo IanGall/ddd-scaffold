@@ -23,6 +23,11 @@
         </dependency>
         <dependency>
             <groupId>cn.iantech</groupId>
+            <artifactId>ddd-test-starter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.iantech</groupId>
             <artifactId>ddd-common</artifactId>
         </dependency>
         <dependency>

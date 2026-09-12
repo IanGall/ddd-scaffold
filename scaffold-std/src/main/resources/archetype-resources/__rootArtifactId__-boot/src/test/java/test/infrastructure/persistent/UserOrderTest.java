@@ -6,6 +6,7 @@ package ${package}.test.infrastructure.persistent;
 import ${package}.domain.user.model.entity.UserOrderBO;
 import ${package}.infrastructure.persistent.dao.IUserOrderDao;
 import ${package}.infrastructure.persistent.po.UserOrderPO;
+import cn.iantech.test.nplusone.DetectNPlusOne;
 import io.github.linpeilie.Converter;
 import io.github.linpeilie.DefaultConverterFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,9 @@ public class UserOrderTest {
     @Resource
     private IUserOrderDao userOrderDao;
 
-    // 验证根据用户 ID 查询订单
+    // 验证根据用户 ID 查询订单；N+1 观测会统计本次调用真实执行的 SELECT，重复执行同一语句即判定为 N+1
     @Test
+    @DetectNPlusOne
     public void shouldSelectOrdersByUserId() {
         List<UserOrderPO> list = userOrderDao.selectByUserId("ian_FOawiP");
         log.info("测试结果：{}", list);

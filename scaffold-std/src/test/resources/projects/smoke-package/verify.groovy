@@ -63,6 +63,7 @@ assert !triggerPom.contains("<artifactId>ian-ddd-smoke-application</artifactId>"
 def bootPom = new File(project, "ian-ddd-smoke-boot/pom.xml").text
 assert bootPom.contains("<artifactId>ian-ddd-smoke-domain</artifactId>")
 assert !bootPom.contains("<artifactId>ian-ddd-smoke-application</artifactId>")
+assert bootPom.contains("<artifactId>ddd-test-starter</artifactId>")
 def infrastructurePom = new File(project, "ian-ddd-smoke-infrastructure/pom.xml").text
 assert infrastructurePom.contains("<artifactId>ddd-redis-starter</artifactId>")
 assert infrastructurePom.contains("<artifactId>ddd-id-generator-starter</artifactId>")
