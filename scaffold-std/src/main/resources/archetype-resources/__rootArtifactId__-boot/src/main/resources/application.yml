@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: ${rootArtifactId}-boot
+  profiles:
+    active: test
+
+dubbo:
+  application:
+    qos-enable: ${symbol_dollar}{DUBBO_QOS_ENABLED:false}
+
+# 所有业务实例必须连接同一 Redis，并共享该命名空间以保证 ID 全局唯一。
+ddd:
+  id-generator:
+    namespace: ${symbol_dollar}{DDD_ID_GENERATOR_NAMESPACE:ddd-global-id}

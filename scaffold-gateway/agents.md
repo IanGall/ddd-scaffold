@@ -1,0 +1,25 @@
+# scaffold-gateway 模块协作说明
+
+## 模块定位
+
+- 本模块是通用网关 Maven Archetype，不承载具体业务实现。
+- 模板必须能够独立生成、编译和测试，仅依赖标准工程稳定的 `IAuthService` 认证契约及 `IRbacService` 平台账号契约。
+
+## 模板约束
+
+- 统一继承 `ddd-base` 并导入 `ddd-base-bom`，不得重复维护依赖版本。
+- RPC 协议统一使用 Dubbo Triple；除认证与平台开户外的业务契约由生成后的工程自行引入。
+- 公共模型复用 `ddd-common`，禁止引入 Hutool 或创建重复公共模块。
+- 所有环境变量占位符必须通过 Archetype 集成测试确认生成结果正确。
+- 生成工程只转发 `X-Platform-Token`，平台凭据由 Provider 校验；租户边界来自 Auth 校验后的可信身份。Gateway 不连接 Redis、
+  不保存 Session 或平台令牌，Dubbo Triple 使用明文 RPC，注册中心凭据仍通过环境变量注入。
+- HTTP API 固定使用 `/api/admin/**`、`/api/app/**`、`/api/external/**` 三类前缀；旧路径不保留兼容。
+- Admin/App 认证入口分别位于 `/api/admin/auth/**`、`/api/app/auth/**`，App 注册通过 `ICustomerService`；网关只做主体与分区粗粒度隔离，
+  C 端业务仍由 Provider 校验 customer binding 与资源归属。
+- External 使用渠道 HMAC 与固定 `external:access` scope；平台账号创建仅转发 `X-Platform-Token`，不接受普通 Admin Bearer
+  代替。
+
+## 提交前检查
+
+- 执行 `mvn clean verify`，确保生成工程完成编译和测试。
+- 扫描生成结果，确认不存在模板变量、认证契约之外的 RBAC 业务依赖或真实凭据残留。

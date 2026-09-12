@@ -1,0 +1,34 @@
+server:
+  port: 8091
+
+# 测试默认不连接外部数据库。需要数据库集成测试时，请使用 Testcontainers 提供容器化数据源。
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.redisson.spring.starter.RedissonAutoConfigurationV2
+      - org.redisson.spring.starter.RedissonAutoConfigurationV4
+
+redis:
+  sdk:
+    enabled: false
+
+kafka:
+  enabled: false
+
+xxl:
+  job:
+    enabled: false
+
+dubbo:
+  enabled: false
+
+ddd:
+  id-generator:
+    enabled: false
+
+# 日志
+logging:
+  level:
+    root: info
+  config: classpath:logback-spring.xml

@@ -1,0 +1,11 @@
+# 分布式 E2E 覆盖率配置 —— 由 coverage-controller 读取，网关自身不依赖。
+#
+# 单模块工程，classes 目录就是本工程编译输出；相对路径基于工程根目录解析。
+# 同一网关多实例同时采集时，需要给每个实例换成不同的 name。
+coverage:
+  reports:
+    - name: ${artifactId}
+      classes-directories:
+        - target/classes
+      source-directories:
+        - src/main/java

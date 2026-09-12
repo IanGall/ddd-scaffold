@@ -1,0 +1,31 @@
+#set( $symbol_dollar = '$' )
+server:
+  port: 8092
+
+spring:
+  application:
+    name: ${rootArtifactId}
+  profiles:
+    active: dev
+
+dubbo:
+  application:
+    name: ${rootArtifactId}
+    qos-enable: false
+    metadata-type: remote
+    metadata-service-protocol: tri
+  consumer:
+    check: false
+
+  metrics:
+    export-metrics-service: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  level:
+    root: info

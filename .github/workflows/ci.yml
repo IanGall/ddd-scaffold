@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      # 以子目录布局检出自有仓库与 ddd 仓库，还原 relativePath 指向的 ../ddd/ddd-base 结构
+      - uses: actions/checkout@v4
+        with:
+          path: ddd-scaffold
+
+      # TODO: 待 ddd 远端仓库建仓后确认仓库名（当前为占位）
+      - uses: actions/checkout@v4
+        with:
+          repository: IanGall/ddd
+          path: ddd
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: 安装 ddd 仓库制品到本地仓库
+        run: mvn -B -f ddd/pom.xml install -DskipTests
+
+      - name: 构建并验证骨架
+        run: mvn -B -f ddd-scaffold/pom.xml verify

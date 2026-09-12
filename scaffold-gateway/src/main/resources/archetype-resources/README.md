@@ -1,0 +1,79 @@
+# ${uAppName} 网关
+
+这是一个基于 Spring Boot、Dubbo Triple 和 Nacos 的单模块网关骨架，认证契约对接标准工程 `IAuthService`。
+
+<h2>启动</h2>
+
+所有环境必须设置 `DUBBO_REGISTRY_ADDRESS`、`DUBBO_REGISTRY_USERNAME` 和 `DUBBO_REGISTRY_PASSWORD`。Access Token、 Refresh
+Token 与 Session 均由 Auth 服务保存，RBAC 与 Customer 作为身份校验提供方，Gateway 不连接 Redis。
+
+```bash
+mvn spring-boot:run
+```
+
+`GET /actuator/health` 为公开健康检查。管理端登录使用 `POST /api/admin/auth/login`，C 端注册/登录使用
+`POST /api/app/auth/register`、`POST /api/app/auth/login`，均返回 opaque Access Token 和 Refresh Token；业务请求只在
+`Authorization: Bearer <accessToken>` 中携带 Access Token，Refresh Token 仅允许通过对应端的 `/api/*/auth/refresh` JSON
+请求体使用。
+
+```bash
+LOGIN_RESPONSE=$(curl -s -X POST http://127.0.0.1:8092/api/admin/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"loginName":"用户名@主账号ID.com","password":"账号密码"}')
+ACCESS_TOKEN=$(printf '%s' "$LOGIN_RESPONSE" | jq -r '.data.accessToken')
+REFRESH_TOKEN=$(printf '%s' "$LOGIN_RESPONSE" | jq -r '.data.refreshToken')
+curl -H "Authorization: Bearer $ACCESS_TOKEN" \
+  http://127.0.0.1:8092/api/admin/status
+
+curl -s -X POST http://127.0.0.1:8092/api/admin/auth/refresh \
+  -H 'Content-Type: application/json' \
+  -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
+```
+
+每次刷新和业务请求都会调用 Auth 校验主账号、子账号状态和会话状态，并轮换 Refresh Token；旧 Refresh Token 重放会撤销
+整个令牌族。管理端与 C 端的注销、注销全部和设备会话接口分别位于 `/api/admin/auth/**`、`/api/app/auth/**`，均要求有效 Access
+Token。
+
+生成网关只信任 Auth 返回的身份，并恢复主账号 ID、当前用户 ID 和本地用户名，不信任外部 `X-Account-Id`、`X-User-Id`。
+`POST /api/admin/platform/accounts` 用于创建主账号。Gateway 只把 `X-Platform-Token` 和开户字段转发给独立的
+`IPlatformAccountService`，平台凭据由 Provider 最终校验，Gateway 不保存或比较凭据。Dubbo Triple 消费端使用明文 RPC， 注册中心通过
+Nacos 用户名密码认证。
+
+登录限流或临时锁定统一返回 `AUTH_RATE_LIMITED` 和 HTTP 429，不暴露具体触发条件。
+
+`/api/external/**` 使用渠道 HMAC，不使用 Bearer Token。固定 scope 为 `external:access`。请求头固定为 `X-Channel-Code`、
+`X-Channel-Secret-Version`、`X-Channel-Timestamp`、`X-Channel-Content-SHA256` 和 `X-Channel-Signature`。 Canonical Request
+按 Method、Path、Query、Content-Type、渠道编码、密钥版本、时间戳和 Body SHA-256 八行组成， 签名算法固定为 HMAC-SHA256。请求体最大
+1 MiB，时间窗为前后 300 秒；相同签名只能成功一次，重试必须更新时间戳并重新签名。
+
+认证 RPC 的异常由 `GatewayAuthClient` 沿 cause 链保留 `AppException`，未声明的 RPC 失败统一转换为
+`AUTH_UNAVAILABLE`。过滤器将异常委托给唯一的 `GatewayExceptionHandler`，由 `Constants.ResponseCode` 统一决定 HTTP 状态和
+`data: null` 响应；不要在过滤器或控制器中手写 JSON、解析 Dubbo `GenericException` 或重复维护状态码映射。
+
+<h2>分布式 E2E 覆盖率</h2>
+
+本网关已内置接入分布式覆盖率所需的全部文件：
+
+```text
+dev-ops/start-with-coverage.sh                  # 以 jacocoagent tcpserver 模式启动，Agent 默认 6300
+src/main/resources/application-coverage.yml    # 报告使用的 classes / source 目录
+```
+
+启动：
+
+```bash
+dev-ops/start-with-coverage.sh
+```
+
+E2E 测试写在网关侧（只调用网关 HTTP 接口），各服务 JVM 内的 Agent 自动记录自己被覆盖的情况。
+完整接入步骤见 `ddd-base/ian-ddd-coverage/EXTENDING.md`，要点：
+
+- 服务启动后，用注册接口把网关登记到控制器（无需改配置重启）：
+
+  ```bash
+  ddd-base/ian-ddd-coverage/coverage-e2e.sh register <服务名> 6300 \
+    "$(pwd)/target/classes" "$(pwd)/src/main/java"
+  ```
+- Agent 名称默认取工程目录名，必须与注册时的服务名一致
+- 端口约定：Gateway 6300、标准服务 6301、后续服务依次顺延
+- 测试类加 `@CoversE2e` 注解，并用 `@EnabledIfEnvironmentVariable(named = "RUN_COVERAGE_E2E", matches = "true")` 控制开关
