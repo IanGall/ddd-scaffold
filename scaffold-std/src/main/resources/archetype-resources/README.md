@@ -13,7 +13,39 @@
    `repository` 或 `adapter` 契约包。
 4. Trigger 负责可信上下文解析和 API DTO 转换，只能调用 `domain.<业务域>.service` 或 `cases.<业务域>.service`。
 5. `domain` 禁止依赖 `cases`；Cases 禁止依赖 API DTO、Context、RPC、Trigger 或 Infrastructure 实现。
-6. `xxx` 是空业务域结构示例；复制并重命名后再实现业务，不保留无业务意义的重复占位域。
+6. 骨架只预置一个最小示例（`domain/user` 领域服务 + `cases/user` 用例编排）；其余业务域按同样结构新增，不生成无业务意义的空占位包。
+
+<h2>骨架预置范围</h2>
+
+为避免为不需要的能力背依赖，骨架**不预置**以下内容，需要时自行引入：
+
+- 分库分表（ShardingSphere）：`spring.datasource` 为单库 MySQL
+- 消息队列（Kafka）与任务调度（XXL-Job）
+- 平台专属能力（如渠道密钥加密、防重放存储）
+
+`domain.support.infra.IEventProducer` 与 `domain.support.model.event.BaseEvent` 保留为领域事件端口与模型；
+具体 MQ 适配器由使用方在 `infrastructure` 侧实现。MyBatis 的 Mapper 放在
+`<your-project>-infrastructure/src/main/resources/mybatis/mapper/`。
+
+生成后的包结构：
+
+```text
+<your-project>-domain/src/main/java
+├── domain/{业务域}/service          # 领域服务（内含 user 示例）
+├── domain/support/infra             # 基础设施能力契约（端口），由 infrastructure 实现
+├── domain/support/model/event       # 领域事件基类
+└── cases/{业务域}/service           # 用例编排：事务、权限、审计、跨领域编排
+
+<your-project>-infrastructure/src/main/java
+└── （按需新增）持久化 / 外部系统 / MQ / 缓存等适配器实现
+
+<your-project>-trigger/src/main/java
+└── trigger/rpc                      # Dubbo Triple 服务提供者实现（@DubboService）
+
+<your-project>-boot/src/main/java
+├── config                           # 装配与启动期配置
+└── <App>Application                 # 启动入口
+```
 
 <h2>RPC 契约位置</h2>
 
@@ -56,7 +88,7 @@ public class OrderRepository {
 ```
 
 Starter 通过 Redis 租约自动分配并续租 Worker ID，不需要应用手工配置 Worker ID。由应用分配的数据库主键应显式写入 ID，不能同时
-保留数据库自增。Session/Family 等非安全业务标识也通过领域端口适配该 Starter；Access Token、Refresh Token、渠道密钥和 AES IV
+保留数据库自增。Session/Family 等非安全业务标识也通过领域端口适配该 Starter；Access Token、Refresh Token 等安全令牌
 仍必须使用不可预测的安全随机值。`test` Profile 默认设置 `ddd.id-generator.enabled=false`，普通测试应提供确定性的 Fake ID
 生成器。
 

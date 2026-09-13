@@ -1,13 +1,8 @@
 server:
   port: 8091
 
-channel:
-  security:
-    encryption:
-      key-id: ${symbol_dollar}{CHANNEL_ENCRYPTION_KEY_ID}
-      master-key: ${symbol_dollar}{CHANNEL_ENCRYPTION_MASTER_KEY}
-
 # 生产数据库连接必须由部署环境注入，禁止在模板中写入地址或凭据。
+# 需要时在此补充 spring.datasource.* / spring.data.redis.* / dubbo.registry.* 的 ${ENV} 引用（不保留可用默认值）。
 
 dubbo:
   protocol:

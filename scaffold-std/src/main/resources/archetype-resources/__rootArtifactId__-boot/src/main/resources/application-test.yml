@@ -13,13 +13,6 @@ redis:
   sdk:
     enabled: false
 
-kafka:
-  enabled: false
-
-xxl:
-  job:
-    enabled: false
-
 dubbo:
   enabled: false
 

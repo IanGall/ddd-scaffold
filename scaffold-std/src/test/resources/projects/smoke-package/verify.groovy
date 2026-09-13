@@ -55,9 +55,13 @@ assert userDomainService.contains("@Service")
 def userCaseService = new File(casesSource, "user/service/UserCaseService.java").text
 assert userCaseService.contains("private final UserDomainService userDomainService;")
 assert userCaseService.contains("return userDomainService.queryUserInfo(request);")
-def eventProducer = new File(project,
-        "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/event/EventProducer.java").text
-assert eventProducer.contains("import cn.iantech.smoke.domain.support.infra.IEventProducer;")
+// 骨架不预置中间件/平台专属能力：以下内容不应出现在生成工程中
+assert !new File(coreDomainSource, "xxx").exists()
+assert !new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/channel").exists()
+assert !new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/event").exists()
+assert !new File(project, "ian-ddd-smoke-boot/src/main/resources/sharding").exists()
+assert !new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/job").exists()
+assert !new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/listener").exists()
 
 def triggerPom = new File(project, "ian-ddd-smoke-trigger/pom.xml").text
 assert triggerPom.contains("<artifactId>ian-ddd-smoke-domain</artifactId>")
@@ -72,8 +76,18 @@ def infrastructurePom = new File(project, "ian-ddd-smoke-infrastructure/pom.xml"
 assert infrastructurePom.contains("<artifactId>ddd-redis-starter</artifactId>")
 assert infrastructurePom.contains("<artifactId>ddd-id-generator-starter</artifactId>")
 assert !infrastructurePom.contains("<artifactId>redisson-spring-boot-starter</artifactId>")
-assert new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/channel/RedisChannelReplayStore.java")
-        .text.contains("import cn.iantech.redis.IRedisService;")
+assert !infrastructurePom.contains("<artifactId>spring-boot-starter-kafka</artifactId>")
+// 中间件与分片依赖不应随骨架下发
+assert !bootPom.contains("shardingsphere")
+assert !bootPom.contains("<artifactId>xxl-job-core</artifactId>")
+assert !bootPom.contains("<artifactId>spring-boot-starter-kafka</artifactId>")
+assert !triggerPom.contains("<artifactId>xxl-job-core</artifactId>")
+assert !triggerPom.contains("<artifactId>spring-boot-starter-kafka</artifactId>")
+def devConfiguration = new File(project, "ian-ddd-smoke-boot/src/main/resources/application-dev.yml").text
+assert !devConfiguration.contains("kafka:")
+assert !devConfiguration.contains("channel:")
+assert !devConfiguration.contains("shardingsphere")
+assert devConfiguration.contains("com.mysql.cj.jdbc.Driver")
 assert !new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/redis/IRedisService.java").exists()
 assert !new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/redis/RedissonService.java").exists()
 

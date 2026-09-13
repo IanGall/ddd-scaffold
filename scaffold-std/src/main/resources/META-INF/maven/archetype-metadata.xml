@@ -50,12 +50,6 @@
             <include>application*.yml</include>
           </includes>
         </fileSet>
-        <fileSet encoding="UTF-8">
-          <directory>src/main/resources</directory>
-          <includes>
-            <include>sharding/**/*.yaml</include>
-          </includes>
-        </fileSet>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
           <directory>src/test/java</directory>
           <includes>
