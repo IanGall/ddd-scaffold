@@ -1,6 +1,31 @@
 # ${uAppName} 网关
 
-这是一个基于 Spring Boot、Dubbo Triple 和 Nacos 的单模块网关骨架，认证契约对接标准工程 `IAuthService`。
+这是一个基于 Spring Boot、Dubbo Triple 和 Nacos 的单模块网关骨架：认证转发与 RBAC 管理端代理都直接使用平台认证契约，
+Gateway 自身不保存会话、不连接 Redis。
+
+<h2>契约依赖</h2>
+
+网关是「平台认证网关」，直接使用平台认证契约，因此 `pom.xml` 必须依赖认证契约制品：
+
+- 契约制品：`ian-ddd-auth-api`（可用 `pom.xml` 的 `auth.contract.artifactId` 属性整体替换）
+- 契约来源：共享契约仓 `ian-ddd-api/ian-ddd-api-internal/<service>-api`，版本由 `ddd-base-bom` 统一管理（本模板不写版本号）
+- 用到的契约：`cn.iantech.api.*` 下的 `IAuthService` / `IRbacService` / `IPlatformAccountService` / `IChannelCredentialService`
+  及 `model.{auth,customer,rbac,channel}.*`
+
+网关**不定义也不自带** RPC 契约。新增或修改契约请改契约仓并同步 `ddd-base-bom`，不要在网关工程内新建 `api` 模块。
+
+已代理的接口：
+
+```text
+/api/admin/auth/**                                # 登录、刷新、注销、会话
+/api/admin/platform/accounts                      # 平台开户（X-Platform-Token）
+/api/admin/platform/channel-credentials/**        # 渠道凭证与数据范围
+/api/admin/rbac/users|roles|permissions/**        # 用户、角色、权限 CRUD
+/api/admin/rbac/users/{id}/roles                  # 用户角色关系（GET/PUT）
+/api/admin/rbac/roles/{id}/permissions            # 角色权限关系（GET/PUT）
+/api/app/auth/**                                  # C 端注册、登录、刷新、注销、会话
+/actuator/health                                  # 公开健康检查
+```
 
 <h2>启动</h2>
 

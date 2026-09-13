@@ -21,6 +21,14 @@
         <ddd.base.version>1.0-SNAPSHOT</ddd.base.version>
         <gateway.core.version>1.0-SNAPSHOT</gateway.core.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
+        <!--
+          本模板是「平台认证网关」：认证转发（AdminAuth/AppAuth）与 RBAC 管理端代理都直接使用
+          平台认证契约 cn.iantech.api.*，因此必须依赖认证契约制品。
+          契约统一放在共享契约仓 ian-ddd-api 的 ian-ddd-api-internal/<service>-api，
+          版本由 ddd-base-bom 统一管理（此处不写版本）。
+          若你的平台认证契约制品名不同，只需改这一处属性。
+        -->
+        <auth.contract.artifactId>ian-ddd-auth-api</auth.contract.artifactId>
     </properties>
 
     <dependencyManagement>
@@ -72,7 +80,8 @@
         </dependency>
         <dependency>
             <groupId>cn.iantech</groupId>
-            <artifactId>ian-ddd-auth-api</artifactId>
+            <!-- 平台认证契约（见 properties 中的 auth.contract.artifactId 说明） -->
+            <artifactId>${auth.contract.artifactId}</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.iantech</groupId>
