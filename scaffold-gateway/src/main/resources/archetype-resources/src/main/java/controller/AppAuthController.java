@@ -2,7 +2,6 @@ package ${package}.controller;
 
 import cn.iantech.api.model.auth.AuthSessionDTO;
 import cn.iantech.api.model.auth.AuthSubjectTypes;
-import cn.iantech.api.model.auth.AuthTokenDTO;
 import cn.iantech.api.model.customer.CustomerLoginReq;
 import cn.iantech.api.model.customer.CustomerUserDTO;
 import cn.iantech.common.model.Response;
@@ -18,7 +17,9 @@ import java.util.List;
 import static ${package}.controller.AuthControllerSupport.*;
 import static ${package}.model.GatewayResponses.success;
 
-/** App 用户注册、认证、令牌刷新与设备会话入口。 */
+/**
+ * C 端注册、认证与自助会话入口。
+ */
 @RestController
 @RequestMapping("/api/app/auth")
 public class AppAuthController {
@@ -30,14 +31,13 @@ public class AppAuthController {
     }
 
     @PostMapping("/register")
-    public Response<CustomerUserDTO> register(@Valid @RequestBody AuthWebModels.AppRegisterRequest request) {
+    public Response<CustomerUserDTO> register(@Valid @RequestBody AuthWebModels.RegisterRequest request) {
         return success(authClient.register(request.loginName(), request.password(), request.displayName()));
     }
 
     @PostMapping("/login")
     public Response<AuthWebModels.TokenResponse> login(
-            @Valid @RequestBody AuthWebModels.AppLoginRequest request,
-            HttpServletRequest servletRequest) {
+            @Valid @RequestBody AuthWebModels.AppLoginRequest request, HttpServletRequest servletRequest) {
         CustomerLoginReq login = new CustomerLoginReq();
         login.setLoginName(request.loginName());
         login.setPassword(request.password());
@@ -45,14 +45,12 @@ public class AppAuthController {
         login.setDeviceId(limited(request.deviceId(), 128));
         login.setIpAddress(limited(servletRequest.getRemoteAddr(), 64));
         login.setUserAgent(limited(servletRequest.getHeader("User-Agent"), 256));
-        AuthTokenDTO issued = requireApp(authClient.customerLogin(login));
-        return success(toResponse(issued));
+        return success(toResponse(requireApp(authClient.customerLogin(login))));
     }
 
     @PostMapping("/refresh")
     public Response<AuthWebModels.TokenResponse> refresh(
-            @Valid @RequestBody AuthWebModels.RefreshRequest request,
-            HttpServletRequest servletRequest) {
+            @Valid @RequestBody AuthWebModels.RefreshRequest request, HttpServletRequest servletRequest) {
         return success(toResponse(requireApp(authClient.refresh(
                 refreshRequest(request, servletRequest, AuthSubjectTypes.CUSTOMER)))));
     }
@@ -76,7 +74,7 @@ public class AppAuthController {
 
     @DeleteMapping("/sessions/{sessionId}")
     public Response<Void> revokeSession(
-            @PathVariable @Size(max = 64, message = "会话ID长度不能超过64") String sessionId,
+            @Size(max = 64, message = "会话ID长度不能超过64") @PathVariable String sessionId,
             HttpServletRequest request) {
         authClient.revokeSession(requiredAccessToken(request), sessionId);
         return success(null);
