@@ -58,10 +58,6 @@
             <groupId>${groupId}</groupId>
             <artifactId>${rootArtifactId}-domain</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${groupId}</groupId>
-            <artifactId>${rootArtifactId}-api</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>

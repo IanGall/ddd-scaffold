@@ -1,8 +1,9 @@
-# ian-frame-archetype - DDD 脚手架
+# ${rootArtifactId} - DDD 分层工程
 
 <h2>分层边界</h2>
 
-生成工程固定包含 `api`、`domain`、`infrastructure`、`trigger` 和 `boot` 五个业务模块，不再包含 Application 模块。
+生成工程固定包含 `domain`、`infrastructure`、`trigger` 和 `boot` 四个模块，不再包含 Application 模块与本地 `api` 模块
+（RPC 契约不在服务工程内定义，见下方「RPC 契约位置」）。
 
 1. `domain.<业务域>` 保存聚合、实体、值对象、领域服务和 `infra` 基础设施能力契约，不依赖 API DTO、Context、RPC 或
    Infrastructure 实现。领域服务实现可使用 Spring `@Service` 参与组件扫描，但领域模型、值对象、聚合和 infra 接口不得依赖技术框架。
@@ -13,6 +14,25 @@
 4. Trigger 负责可信上下文解析和 API DTO 转换，只能调用 `domain.<业务域>.service` 或 `cases.<业务域>.service`。
 5. `domain` 禁止依赖 `cases`；Cases 禁止依赖 API DTO、Context、RPC、Trigger 或 Infrastructure 实现。
 6. `xxx` 是空业务域结构示例；复制并重命名后再实现业务，不保留无业务意义的重复占位域。
+
+<h2>RPC 契约位置</h2>
+
+跨进程契约（Dubbo RPC 接口与其传输 DTO）**不在本工程内定义**，统一放在共享契约仓库，避免每个服务各持一份同名契约导致漂移：
+
+```text
+ian-ddd-api                                   # 契约聚合工程（独立于任何服务实现）
+└── ian-ddd-api-internal                      # 内部：服务间 Dubbo RPC 契约
+    └── <your-service>-api                    # 新增服务时在此登记一个契约子模块
+└── ian-ddd-api-external                      # 外部：对外/第三方 HTTP 契约（@HttpExchange）
+```
+
+新增服务的做法：
+
+1. 在 `ian-ddd-api/ian-ddd-api-internal` 下新增 `<your-service>-api` 子模块，存放 RPC 接口与 DTO。
+2. 在 `ddd-base-bom` 中登记该契约模块，由 BOM 统一管理版本，消费方无需各自写版本号。
+3. 服务工程与消费方（网关等）都只依赖契约制品，**不依赖对方的实现工程**。
+
+判据：只有真正跨进程传输的类型才进契约仓；仅在本服务进程内使用的 DTO 或共享类型应放在 `domain`（或 `cases`）中，不要新建 `api` 模块。
 
 <h2>全局唯一 ID</h2>
 
@@ -80,7 +100,7 @@ Domain Service 只承载领域规则；事务、权限、审计和跨领域编�
 ```bash
 rg "import .*api\\.model|import .*context|import .*rpc|import .*trigger|import .*infrastructure" <your-project>-domain/src/main/java/cases
 rg "import .*cases" <your-project>-domain/src/main/java/domain
-rg "<artifactId><your-project>-api</artifactId>|<artifactId><your-project>-infrastructure</artifactId>" <your-project>-domain/pom.xml
+rg "<artifactId><your-project>-infrastructure</artifactId>" <your-project>-domain/pom.xml
 rg "import .*application|<artifactId>.*-application</artifactId>" .
 ```
 

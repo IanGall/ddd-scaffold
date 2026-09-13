@@ -15,7 +15,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>${rootArtifactId}-api</module>
         <module>${rootArtifactId}-domain</module>
         <module>${rootArtifactId}-infrastructure</module>
         <module>${rootArtifactId}-trigger</module>
@@ -55,11 +54,6 @@
             <dependency>
                 <groupId>${groupId}</groupId>
                 <artifactId>${rootArtifactId}-trigger</artifactId>
-                <version>${version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${groupId}</groupId>
-                <artifactId>${rootArtifactId}-api</artifactId>
                 <version>${version}</version>
             </dependency>
         </dependencies>

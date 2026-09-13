@@ -13,9 +13,7 @@ coverage:
         - ../../../${rootArtifactId}-trigger/target/classes
         - ../../../${rootArtifactId}-domain/target/classes
         - ../../../${rootArtifactId}-infrastructure/target/classes
-        - ../../../${rootArtifactId}-api/target/classes
       source-directories:
         - ../../../${rootArtifactId}-trigger/src/main/java
         - ../../../${rootArtifactId}-domain/src/main/java
         - ../../../${rootArtifactId}-infrastructure/src/main/java
-        - ../../../${rootArtifactId}-api/src/main/java

@@ -1,7 +1,8 @@
 def integrationTestBaseDir = basedir instanceof File ? basedir : new File(basedir.toString())
 def project = new File(integrationTestBaseDir, "project/ian-ddd-smoke")
 
-assert new File(project, "ian-ddd-smoke-api").isDirectory()
+// 生成工程只有四个模块：RPC 契约不再由服务工程自带（统一放共享契约仓 ian-ddd-api）
+assert !new File(project, "ian-ddd-smoke-api").exists()
 assert new File(project, "ian-ddd-smoke-domain").isDirectory()
 assert new File(project, "ian-ddd-smoke-infrastructure").isDirectory()
 assert new File(project, "ian-ddd-smoke-trigger").isDirectory()
@@ -35,7 +36,9 @@ def javaSources = { File sourceRoot ->
 
 javaSources(casesSource).each { source ->
     def text = source.text
-    assert !(text =~ /import\s+cn\.iantech\.smoke\.(api|context|rpc|trigger|infrastructure)(\.|;)/)
+    assert !(text =~ /import\s+cn\.iantech\.smoke\.(context|rpc|trigger|infrastructure)(\.|;)/)
+    // Cases 不得依赖跨进程契约 DTO（契约已统一放共享契约仓的 cn.iantech.api.*）
+    assert !(text =~ /import\s+cn\.iantech\.api(\.|;)/)
     assert !(text =~ /import\s+(cn\.iantech\.context|org\.apache\.dubbo)(\.|;)/)
 }
 javaSources(coreDomainSource).each { source ->
@@ -59,6 +62,7 @@ assert eventProducer.contains("import cn.iantech.smoke.domain.support.infra.IEve
 def triggerPom = new File(project, "ian-ddd-smoke-trigger/pom.xml").text
 assert triggerPom.contains("<artifactId>ian-ddd-smoke-domain</artifactId>")
 assert !triggerPom.contains("<artifactId>ian-ddd-smoke-application</artifactId>")
+assert !triggerPom.contains("<artifactId>ian-ddd-smoke-api</artifactId>")
 
 def bootPom = new File(project, "ian-ddd-smoke-boot/pom.xml").text
 assert bootPom.contains("<artifactId>ian-ddd-smoke-domain</artifactId>")
