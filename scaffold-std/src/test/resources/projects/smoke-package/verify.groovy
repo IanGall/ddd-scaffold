@@ -50,6 +50,12 @@ javaSources(coreDomainSource).each { source ->
                 assert springImport.trim() == "import org.springframework.stereotype.Service;"
             }
 }
+// 领域服务为具体类：service 包内不得出现接口（接口只用于 infra 端口/SPI）
+def domainServiceInterfaces = javaSources(coreDomainSource).findAll { source ->
+    def normalized = source.path.replace('\\', '/')
+    normalized.contains('/service/') && source.name.startsWith('I') && source.name.endsWith('.java')
+}
+assert domainServiceInterfaces.isEmpty() : "领域服务应为具体类，service 包内不得定义接口: ${domainServiceInterfaces}"
 def userDomainService = new File(coreDomainSource, "user/service/UserDomainService.java").text
 assert userDomainService.contains("@Service")
 def userCaseService = new File(casesSource, "user/service/UserCaseService.java").text

@@ -6,7 +6,8 @@
 （RPC 契约不在服务工程内定义，见下方「RPC 契约位置」）。
 
 1. `domain.<业务域>` 保存聚合、实体、值对象、领域服务和 `infra` 基础设施能力契约，不依赖 API DTO、Context、RPC 或
-   Infrastructure 实现。领域服务实现可使用 Spring `@Service` 参与组件扫描，但领域模型、值对象、聚合和 infra 接口不得依赖技术框架。
+   Infrastructure 实现。领域服务是**具体类**（用 Spring `@Service` 参与组件扫描），**不建 `I*` 接口**——接口只用于
+   `infra` 端口/SPI（由 Infrastructure 或外部能力实现）。领域模型、值对象、聚合和 infra 接口不得依赖技术框架。
 2. 与 `domain` 同级的 `cases.<业务域>.service` 负责事务、权限、审计和跨领域能力编排，可使用 Spring Service、Spring
    Transaction 与日志。
 3. Cases 通过 `domain.<业务域>.infra` 中的契约访问基础设施，由 Infrastructure 提供实现；Domain 不再定义 `port`、
@@ -127,16 +128,21 @@ public class UserDomainService {
 
 Domain Service 只承载领域规则；事务、权限、审计和跨领域编排仍由同级 `cases` 服务负责。
 
+Domain Service 与 Cases 都直接依赖**具体类**，不为其建接口：同模块单实现接口只是双份签名，不带来解耦。
+只有当实现需要跨模块（`infra` 端口由 Infrastructure 实现）或存在多种实现时，才定义接口——例如
+`domain.support.infra.IEventProducer`。
+
 <h2>分层自检</h2>
 
 ```bash
 rg "import .*api\\.model|import .*context|import .*rpc|import .*trigger|import .*infrastructure" <your-project>-domain/src/main/java/cases
 rg "import .*cases" <your-project>-domain/src/main/java/domain
+rg "public interface I" <your-project>-domain/src/main/java/domain -g '**/service/**'
 rg "<artifactId><your-project>-infrastructure</artifactId>" <your-project>-domain/pom.xml
 rg "import .*application|<artifactId>.*-application</artifactId>" .
 ```
 
-以上命令均应无输出。Trigger 的业务协作者应只来自 Domain Service 或 Cases Service。
+以上命令均应无输出。Trigger 的业务协作者应只来自 Domain Service 或 Cases Service；领域服务（`service` 包）不得出现接口。
 
 <h2>分布式 E2E 覆盖率</h2>
 
