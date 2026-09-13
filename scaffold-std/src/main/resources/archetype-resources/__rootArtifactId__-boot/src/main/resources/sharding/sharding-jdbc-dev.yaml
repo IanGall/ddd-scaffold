@@ -11,8 +11,8 @@ dataSources:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/ian_dev_tech_db_00?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false
-    username: "${symbol_dollar}${symbol_dollar}{MYSQL_USERNAME::root}"
-    password: "${symbol_dollar}${symbol_dollar}{MYSQL_PASSWORD::}"
+    username: "$${MYSQL_USERNAME::root}"
+    password: "$${MYSQL_PASSWORD::}"
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
@@ -23,8 +23,8 @@ dataSources:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/ian_dev_tech_db_01?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false
-    username: "${symbol_dollar}${symbol_dollar}{MYSQL_USERNAME::root}"
-    password: "${symbol_dollar}${symbol_dollar}{MYSQL_PASSWORD::}"
+    username: "$${MYSQL_USERNAME::root}"
+    password: "$${MYSQL_PASSWORD::}"
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
@@ -35,8 +35,8 @@ dataSources:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/ddd_rbac?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false
-    username: "${symbol_dollar}${symbol_dollar}{MYSQL_USERNAME::root}"
-    password: "${symbol_dollar}${symbol_dollar}{MYSQL_PASSWORD::}"
+    username: "$${MYSQL_USERNAME::root}"
+    password: "$${MYSQL_PASSWORD::}"
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000

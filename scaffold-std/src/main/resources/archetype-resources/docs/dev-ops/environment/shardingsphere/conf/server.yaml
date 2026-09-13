@@ -36,9 +36,9 @@
 authority:
  users:
    - user: root@%
-     password: ${symbol_dollar}{SHARDING_PROXY_ROOT_PASSWORD:}
+     password: ${SHARDING_PROXY_ROOT_PASSWORD:}
    - user: sharding
-     password: ${symbol_dollar}{SHARDING_PROXY_USER_PASSWORD:}
+     password: ${SHARDING_PROXY_USER_PASSWORD:}
  privilege:
    type: ALL_PERMITTED
 

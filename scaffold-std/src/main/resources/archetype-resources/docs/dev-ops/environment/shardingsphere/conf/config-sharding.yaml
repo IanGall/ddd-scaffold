@@ -28,7 +28,7 @@
 #  ds_0:
 #    url: jdbc:postgresql://127.0.0.1:5432/demo_ds_0
 #    username: postgres
-#    password: ${symbol_dollar}{SHARDING_POSTGRES_PASSWORD:}
+#    password: ${SHARDING_POSTGRES_PASSWORD:}
 #    connectionTimeoutMilliseconds: 30000
 #    idleTimeoutMilliseconds: 60000
 #    maxLifetimeMilliseconds: 1800000
@@ -37,7 +37,7 @@
 #  ds_1:
 #    url: jdbc:postgresql://127.0.0.1:5432/demo_ds_1
 #    username: postgres
-#    password: ${symbol_dollar}{SHARDING_POSTGRES_PASSWORD:}
+#    password: ${SHARDING_POSTGRES_PASSWORD:}
 #    connectionTimeoutMilliseconds: 30000
 #    idleTimeoutMilliseconds: 60000
 #    maxLifetimeMilliseconds: 1800000
@@ -118,18 +118,18 @@ databaseName: sharding_db
 
 dataSources:
   ds_0:
-    url: jdbc:mysql://${symbol_dollar}{SHARDING_MYSQL_HOST:127.0.0.1}:${symbol_dollar}{SHARDING_MYSQL_PORT:13306}/${symbol_dollar}{SHARDING_MYSQL_DATABASE_0:ian_dev_tech_db_00}?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
-    username: ${symbol_dollar}{SHARDING_MYSQL_USERNAME:root}
-    password: ${symbol_dollar}{SHARDING_MYSQL_PASSWORD:}
+    url: jdbc:mysql://${SHARDING_MYSQL_HOST:127.0.0.1}:${SHARDING_MYSQL_PORT:13306}/${SHARDING_MYSQL_DATABASE_0:ian_dev_tech_db_00}?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
+    username: ${SHARDING_MYSQL_USERNAME:root}
+    password: ${SHARDING_MYSQL_PASSWORD:}
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 15
     minPoolSize: 5
   ds_1:
-    url: jdbc:mysql://${symbol_dollar}{SHARDING_MYSQL_HOST:127.0.0.1}:${symbol_dollar}{SHARDING_MYSQL_PORT:13306}/${symbol_dollar}{SHARDING_MYSQL_DATABASE_1:ian_dev_tech_db_01}?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
-    username: ${symbol_dollar}{SHARDING_MYSQL_USERNAME:root}
-    password: ${symbol_dollar}{SHARDING_MYSQL_PASSWORD:}
+    url: jdbc:mysql://${SHARDING_MYSQL_HOST:127.0.0.1}:${SHARDING_MYSQL_PORT:13306}/${SHARDING_MYSQL_DATABASE_1:ian_dev_tech_db_01}?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
+    username: ${SHARDING_MYSQL_USERNAME:root}
+    password: ${SHARDING_MYSQL_PASSWORD:}
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000

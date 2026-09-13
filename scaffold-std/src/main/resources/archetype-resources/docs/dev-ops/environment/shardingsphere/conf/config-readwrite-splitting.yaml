@@ -28,7 +28,7 @@
 #  primary_ds:
 #    url: jdbc:postgresql://127.0.0.1:5432/demo_primary_ds
 #    username: postgres
-#    password: ${symbol_dollar}{SHARDING_POSTGRES_PASSWORD:}
+#    password: ${SHARDING_POSTGRES_PASSWORD:}
 #    connectionTimeoutMilliseconds: 30000
 #    idleTimeoutMilliseconds: 60000
 #    maxLifetimeMilliseconds: 1800000
@@ -37,7 +37,7 @@
 #  replica_ds_0:
 #    url: jdbc:postgresql://127.0.0.1:5432/demo_replica_ds_0
 #    username: postgres
-#    password: ${symbol_dollar}{SHARDING_POSTGRES_PASSWORD:}
+#    password: ${SHARDING_POSTGRES_PASSWORD:}
 #    connectionTimeoutMilliseconds: 30000
 #    idleTimeoutMilliseconds: 60000
 #    maxLifetimeMilliseconds: 1800000
@@ -46,7 +46,7 @@
 #  replica_ds_1:
 #    url: jdbc:postgresql://127.0.0.1:5432/demo_replica_ds_1
 #    username: postgres
-#    password: ${symbol_dollar}{SHARDING_POSTGRES_PASSWORD:}
+#    password: ${SHARDING_POSTGRES_PASSWORD:}
 #    connectionTimeoutMilliseconds: 30000
 #    idleTimeoutMilliseconds: 60000
 #    maxLifetimeMilliseconds: 1800000

@@ -20,6 +20,8 @@
     <modules>
         <module>scaffold-std</module>
         <module>scaffold-gateway</module>
+        <!-- 模板护栏：maven-archetype 生命周期无 test 阶段，护栏测试放在 jar 模块中执行 -->
+        <module>scaffold-template-guard</module>
     </modules>
 
     <properties>
