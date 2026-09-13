@@ -62,6 +62,10 @@ assert !new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech
 assert !new File(project, "ian-ddd-smoke-boot/src/main/resources/sharding").exists()
 assert !new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/job").exists()
 assert !new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/listener").exists()
+// 层语义锚点包必须保留：说明适配器放哪里（infrastructure 出站、trigger 入站）
+assert new File(project, "ian-ddd-smoke-infrastructure/src/main/java/cn/iantech/smoke/infrastructure/package-info.java").isFile()
+assert new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/package-info.java").isFile()
+assert new File(project, "ian-ddd-smoke-trigger/src/main/java/cn/iantech/smoke/trigger/rpc/package-info.java").isFile()
 
 def triggerPom = new File(project, "ian-ddd-smoke-trigger/pom.xml").text
 assert triggerPom.contains("<artifactId>ian-ddd-smoke-domain</artifactId>")
