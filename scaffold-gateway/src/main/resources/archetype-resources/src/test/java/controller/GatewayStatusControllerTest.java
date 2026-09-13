@@ -1,15 +1,14 @@
 package ${package}.controller;
 
-import ${package}.model.GatewayStatus;
 import cn.iantech.common.constant.Constants;
 import cn.iantech.common.model.Response;
+import ${package}.model.GatewayStatus;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GatewayStatusControllerTest {
 
-    // 验证状态接口返回当前网关状态
     @Test
     void shouldReturnCurrentGatewayStatus() {
         Response<GatewayStatus> response = new GatewayStatusController("test-gateway").status();

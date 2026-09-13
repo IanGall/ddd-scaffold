@@ -3,9 +3,12 @@ package ${package}.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.util.List;
 
-/** 渠道凭证管理 HTTP 请求模型。 */
+/**
+ * 渠道凭证管理 HTTP 请求模型。
+ */
 public final class ChannelCredentialWebRequests {
 
     private ChannelCredentialWebRequests() {
@@ -24,8 +27,8 @@ public final class ChannelCredentialWebRequests {
     public record UpdateStatus(@NotNull(message = "渠道状态不能为空") Boolean status) {
     }
 
-    public record ReplaceScopes(@NotNull(message = "范围值列表不能为空")
-                                @Size(max = 1000, message = "单次最多配置1000个范围值")
-                                List<@NotBlank String> scopeValues) {
+    public record ReplaceScopes(
+            @NotNull(message = "范围值列表不能为空")
+            @Size(max = 1000, message = "单次最多配置1000个范围值") List<@NotBlank String> scopeValues) {
     }
 }

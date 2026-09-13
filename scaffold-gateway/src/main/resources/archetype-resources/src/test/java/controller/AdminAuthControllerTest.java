@@ -17,27 +17,35 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class AdminAuthControllerTest {
+
     @Test
     void shouldFixAdminSubjectWhenRefreshing() {
-        GatewayAuthClient client = mock(GatewayAuthClient.class);
-        when(client.refresh(any())).thenReturn(token(AuthSubjectTypes.ADMIN_PRIMARY));
-        new AdminAuthController(client).refresh(new AuthWebModels.RefreshRequest("refresh", "web", "device"),
+        GatewayAuthClient authClient = mock(GatewayAuthClient.class);
+        when(authClient.refresh(any())).thenReturn(token("ADMIN_PRIMARY"));
+        AdminAuthController controller = new AdminAuthController(authClient);
+
+        controller.refresh(new AuthWebModels.RefreshRequest("refresh-token", "web", "device"),
                 new MockHttpServletRequest());
+
         ArgumentCaptor<AuthRefreshReq> captor = ArgumentCaptor.forClass(AuthRefreshReq.class);
-        verify(client).refresh(captor.capture());
+        verify(authClient).refresh(captor.capture());
         assertEquals(AuthSubjectTypes.ADMIN, captor.getValue().getExpectedSubjectType());
     }
 
     @Test
     void shouldRejectCustomerIdentityReturnedToAdminEndpoint() {
-        GatewayAuthClient client = mock(GatewayAuthClient.class);
-        when(client.refresh(any())).thenReturn(token(AuthSubjectTypes.CUSTOMER));
-        assertThrows(AppException.class, () -> new AdminAuthController(client).refresh(
-                new AuthWebModels.RefreshRequest("refresh", "web", "device"), new MockHttpServletRequest()));
+        GatewayAuthClient authClient = mock(GatewayAuthClient.class);
+        when(authClient.refresh(any())).thenReturn(token("CUSTOMER"));
+        AdminAuthController controller = new AdminAuthController(authClient);
+
+        assertThrows(AppException.class, () -> controller.refresh(
+                new AuthWebModels.RefreshRequest("refresh-token", "web", "device"),
+                new MockHttpServletRequest()));
     }
 
     private AuthTokenDTO token(String subjectType) {
+        AuthIdentityDTO identity = AuthIdentityDTO.builder().subjectType(subjectType).userId(1L).build();
         return AuthTokenDTO.builder().accessToken("access").refreshToken("refresh").tokenType("Bearer")
-                .sessionId("session").identity(AuthIdentityDTO.builder().subjectType(subjectType).userId(1L).build()).build();
+                .sessionId("session").identity(identity).build();
     }
 }

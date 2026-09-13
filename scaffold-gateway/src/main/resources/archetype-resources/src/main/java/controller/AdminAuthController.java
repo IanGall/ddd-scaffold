@@ -1,9 +1,8 @@
 package ${package}.controller;
 
 import cn.iantech.api.model.auth.AuthLoginReq;
-import cn.iantech.api.model.auth.AuthSubjectTypes;
 import cn.iantech.api.model.auth.AuthSessionDTO;
-import cn.iantech.api.model.auth.AuthTokenDTO;
+import cn.iantech.api.model.auth.AuthSubjectTypes;
 import cn.iantech.common.model.Response;
 import ${package}.model.AuthWebModels;
 import cn.iantech.gateway.core.service.GatewayAuthClient;
@@ -17,7 +16,9 @@ import java.util.List;
 import static ${package}.controller.AuthControllerSupport.*;
 import static ${package}.model.GatewayResponses.success;
 
-/** 管理主体认证、令牌刷新与设备会话入口。 */
+/**
+ * 管理主体认证与自助会话入口。
+ */
 @RestController
 @RequestMapping("/api/admin/auth")
 public class AdminAuthController {
@@ -30,23 +31,20 @@ public class AdminAuthController {
 
     @PostMapping("/login")
     public Response<AuthWebModels.TokenResponse> login(
-            @Valid @RequestBody AuthWebModels.AdminLoginRequest request,
-            HttpServletRequest servletRequest) {
-        AuthTokenDTO issued = requireAdmin(authClient.login(AuthLoginReq.builder()
+            @Valid @RequestBody AuthWebModels.AdminLoginRequest request, HttpServletRequest servletRequest) {
+        return success(toResponse(requireAdmin(authClient.login(AuthLoginReq.builder()
                 .loginName(request.loginName())
                 .password(request.password())
                 .clientType(limited(request.clientType(), 32))
                 .deviceId(limited(request.deviceId(), 128))
                 .ipAddress(limited(servletRequest.getRemoteAddr(), 64))
                 .userAgent(limited(servletRequest.getHeader("User-Agent"), 256))
-                .build()));
-        return success(toResponse(issued));
+                .build()))));
     }
 
     @PostMapping("/refresh")
     public Response<AuthWebModels.TokenResponse> refresh(
-            @Valid @RequestBody AuthWebModels.RefreshRequest request,
-            HttpServletRequest servletRequest) {
+            @Valid @RequestBody AuthWebModels.RefreshRequest request, HttpServletRequest servletRequest) {
         return success(toResponse(requireAdmin(authClient.refresh(
                 refreshRequest(request, servletRequest, AuthSubjectTypes.ADMIN)))));
     }
@@ -70,7 +68,7 @@ public class AdminAuthController {
 
     @DeleteMapping("/sessions/{sessionId}")
     public Response<Void> revokeSession(
-            @PathVariable @Size(max = 64, message = "会话ID长度不能超过64") String sessionId,
+            @Size(max = 64, message = "会话ID长度不能超过64") @PathVariable String sessionId,
             HttpServletRequest request) {
         authClient.revokeSession(requiredAccessToken(request), sessionId);
         return success(null);

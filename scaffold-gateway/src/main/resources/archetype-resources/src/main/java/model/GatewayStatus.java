@@ -1,5 +1,7 @@
 package ${package}.model;
 
-/** 网关基础状态，不依赖任何业务 API。 */
+/**
+ * 网关运行状态。
+ */
 public record GatewayStatus(String application, String status) {
 }
