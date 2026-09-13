@@ -77,6 +77,7 @@
           <directory/>
           <includes>
             <include>agents.md</include>
+            <include>.dockerignore</include>
           </includes>
         </fileSet>
         <!-- build.sh 使用 ${artifactId}/${version} 变量，需过滤替换 -->
