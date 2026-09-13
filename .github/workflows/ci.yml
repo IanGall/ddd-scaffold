@@ -4,6 +4,10 @@ on:
   push:
     branches: [ '**' ]
   pull_request:
+  # 由 ddd 仓库在 push 到 main 后通过 repository_dispatch 触发，缩短「基座已变、骨架未验」的窗口。
+  # 未配置 dispatch 时，下面的每日定时任务仍是兜底。
+  repository_dispatch:
+    types: [ ddd-updated ]
   # 每日跟随 ddd 仓库 main 验证一次：ddd 基座/网关核心的改动发布后，
   # 骨架能及早暴露兼容性问题，而不必等骨架自身有提交。
   schedule:
