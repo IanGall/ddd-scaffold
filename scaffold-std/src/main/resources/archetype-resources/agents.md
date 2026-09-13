@@ -1,7 +1,7 @@
 # 标准 DDD 工程协作说明
 
 ## 模块定位
-- 本工程由 `ian-frame-archetype-std` 脚手架生成，按 `api/boot/domain/infrastructure/trigger` 分层组织。
+- 本工程由 `scaffold-std` 脚手架生成，按 `api/boot/domain/infrastructure/trigger` 分层组织。
 - 公共基础能力统一复用 `ddd-common`，禁止在模块内重复实现已有能力。
 
 ## 变更边界

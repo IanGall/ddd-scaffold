@@ -11,7 +11,7 @@
   <artifactId>scaffold-std</artifactId>
   <packaging>maven-archetype</packaging>
 
-  <name>ian-frame-archetype-std</name>
+  <name>scaffold-std</name>
 
   <properties>
     <maven.archetype.plugin.version>3.4.1</maven.archetype.plugin.version>

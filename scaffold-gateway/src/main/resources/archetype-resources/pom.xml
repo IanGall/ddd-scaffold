@@ -19,7 +19,6 @@
 
     <properties>
         <ddd.base.version>1.0-SNAPSHOT</ddd.base.version>
-        <ian.std.version>1.0-SNAPSHOT</ian.std.version>
         <gateway.core.version>1.0-SNAPSHOT</gateway.core.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
     </properties>
@@ -37,11 +36,6 @@
                 <groupId>cn.iantech</groupId>
                 <artifactId>ian-ddd-gateway-core</artifactId>
                 <version>${gateway.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>cn.iantech</groupId>
-                <artifactId>ian-frame-archetype-std-api</artifactId>
-                <version>${ian.std.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -78,7 +72,7 @@
         </dependency>
         <dependency>
             <groupId>cn.iantech</groupId>
-            <artifactId>ian-frame-archetype-std-api</artifactId>
+            <artifactId>ian-ddd-api-internal</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.iantech</groupId>

@@ -1,4 +1,4 @@
-# ian-frame-archetype-std DDD 脚手架
+# scaffold-std DDD 脚手架
 
 本模块用于构建和发布 Maven Archetype。当前制品坐标如下：
 

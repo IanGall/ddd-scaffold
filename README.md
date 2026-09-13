@@ -12,7 +12,7 @@ DDD 工程骨架（Maven Archetype）聚合工程。
 | `scaffold-std`    | `cn.iantech:scaffold-std:1.0-SNAPSHOT`    | 标准服务五模块：api / domain / infrastructure / trigger / boot |
 | `scaffold-gateway`| `cn.iantech:scaffold-gateway:1.0-SNAPSHOT`| 单模块网关：Web 接入、Auth RPC 认证、统一异常等   |
 
-参考实现对应关系：`ian-ddd-archetype-std` ↔ `scaffold-std`，`ian-ddd-gateway` ↔ `scaffold-gateway`。
+参考实现对应关系：`ian-ddd-auth` ↔ `scaffold-std`，`ian-ddd-gateway` ↔ `scaffold-gateway`。
 骨架只保留通用能力与少量示例业务域，完整业务（Auth、RBAC 等）在参考实现中，不复制进骨架。
 
 ## 仓库结构
