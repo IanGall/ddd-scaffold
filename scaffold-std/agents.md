@@ -17,7 +17,7 @@
 - Domain 核心模型、聚合、实体、值对象和 infra 接口不得依赖 Spring 或 Cases；Cases 不得依赖 API DTO、Context、RPC、Trigger 或
   Infrastructure 实现，只能通过 Domain infra 契约
   调用基础设施能力。
-- Boot/Trigger 模板按边界引入 `ddd-context-dubbo`；Provider 使用明文 Triple，注册中心凭据不得写入模板。
+- Boot/Trigger 模板按边界引入 `ddd-context-dubbo`；Provider 使用明文 `dubbo` 协议（默认 Hessian2 序列化），注册中心凭据不得写入模板。
 
 ## 提交前检查
 - 确认生成流程可执行，输出目录结构完整。

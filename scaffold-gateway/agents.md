@@ -8,11 +8,11 @@
 ## 模板约束
 
 - 统一继承 `ddd-base` 并导入 `ddd-base-bom`，不得重复维护依赖版本。
-- RPC 协议统一使用 Dubbo Triple；除认证与平台开户外的业务契约由生成后的工程自行引入。
+- RPC 协议统一使用 Dubbo（`dubbo` 协议）；除认证与平台开户外的业务契约由生成后的工程自行引入。
 - 公共模型复用 `ddd-common`，禁止引入 Hutool 或创建重复公共模块。
 - 所有环境变量占位符必须通过 Archetype 集成测试确认生成结果正确。
 - 生成工程只转发 `X-Platform-Token`，平台凭据由 Provider 校验；租户边界来自 Auth 校验后的可信身份。Gateway 不连接 Redis、
-  不保存 Session 或平台令牌，Dubbo Triple 使用明文 RPC，注册中心凭据仍通过环境变量注入。
+  不保存 Session 或平台令牌，Dubbo 使用明文 RPC（`dubbo` 协议），注册中心凭据仍通过环境变量注入。
 - HTTP API 固定使用 `/api/admin/**`、`/api/app/**`、`/api/external/**` 三类前缀；旧路径不保留兼容。
 - Admin/App 认证入口分别位于 `/api/admin/auth/**`、`/api/app/auth/**`，App 注册通过 `ICustomerService`；网关只做主体与分区粗粒度隔离，
   C 端业务仍由 Provider 校验 customer binding 与资源归属。

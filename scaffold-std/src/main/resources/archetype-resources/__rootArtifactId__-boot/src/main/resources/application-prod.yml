@@ -6,6 +6,8 @@ server:
 
 dubbo:
   protocol:
+    name: dubbo
+    port: ${symbol_dollar}{DUBBO_PROTOCOL_PORT:20880}
     ssl-enabled: false
 
 # 日志

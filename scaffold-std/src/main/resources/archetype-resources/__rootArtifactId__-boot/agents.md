@@ -12,7 +12,7 @@
 
 - 依赖 `domain`、`infrastructure` 和 `trigger` 模块完成启动装配，`trigger` 传递引入 `api`。
 - 不在启动模块实现业务规则、用例编排或直接写入 SQL。
-- Dubbo Provider 使用明文 Triple RPC，注册中心凭据只能通过环境变量或 Secret 挂载路径注入。
+- Dubbo Provider 使用明文 `dubbo` 协议（默认 Hessian2 序列化），注册中心凭据只能通过环境变量或 Secret 挂载路径注入。
 
 ## 提交前检查
 - 启动类可正常加载，配置项与环境 profile 对齐。

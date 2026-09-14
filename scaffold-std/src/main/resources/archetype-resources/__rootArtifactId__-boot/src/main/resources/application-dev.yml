@@ -34,8 +34,8 @@ dubbo:
     parameters:
       enable-empty-protection: true
   protocol:
-    name: tri
-    port: ${symbol_dollar}{TRIPLE_PROTOCOL_PORT:50051}
+    name: dubbo
+    port: ${symbol_dollar}{DUBBO_PROTOCOL_PORT:20880}
     ssl-enabled: false
   scan:
     base-packages: ${package}.trigger.rpc

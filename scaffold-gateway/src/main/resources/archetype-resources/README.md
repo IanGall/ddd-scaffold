@@ -1,6 +1,6 @@
 # ${uAppName} 网关
 
-这是一个基于 Spring Boot、Dubbo Triple 和 Nacos 的单模块网关骨架：认证转发与 RBAC 管理端代理都直接使用平台认证契约，
+这是一个基于 Spring Boot、Dubbo（`dubbo` 协议）和 Nacos 的单模块网关骨架：认证转发与 RBAC 管理端代理都直接使用平台认证契约，
 Gateway 自身不保存会话、不连接 Redis。
 
 <h2>契约依赖</h2>
@@ -61,7 +61,7 @@ Token。
 
 生成网关只信任 Auth 返回的身份，并恢复主账号 ID、当前用户 ID 和本地用户名，不信任外部 `X-Account-Id`、`X-User-Id`。
 `POST /api/admin/platform/accounts` 用于创建主账号。Gateway 只把 `X-Platform-Token` 和开户字段转发给独立的
-`IPlatformAccountService`，平台凭据由 Provider 最终校验，Gateway 不保存或比较凭据。Dubbo Triple 消费端使用明文 RPC， 注册中心通过
+`IPlatformAccountService`，平台凭据由 Provider 最终校验，Gateway 不保存或比较凭据。Dubbo 消费端使用明文 RPC， 注册中心通过
 Nacos 用户名密码认证。
 
 登录限流或临时锁定统一返回 `AUTH_RATE_LIMITED` 和 HTTP 429，不暴露具体触发条件。

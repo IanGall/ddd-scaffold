@@ -41,7 +41,7 @@
 └── （按需新增）持久化 / 外部系统 / MQ / 缓存等适配器实现
 
 <your-project>-trigger/src/main/java
-└── trigger/rpc                      # Dubbo Triple 服务提供者实现（@DubboService）
+└── trigger/rpc                      # Dubbo（dubbo 协议）服务提供者实现（@DubboService）
 
 <your-project>-boot/src/main/java
 ├── config                           # 装配与启动期配置
@@ -180,4 +180,4 @@ docs/dev-ops/start-with-coverage.sh
 
 - Trigger 和 Provider 按边界引入 Web/Dubbo 上下文适配器，并将可信上下文转换为显式领域参数。
 - 主账号身份必须来自受校验的认证上下文或 Claim，禁止信任外部 `X-Account-Id`、`X-User-Id` 请求头。
-- 生产 Provider 使用明文 Triple RPC；Nacos 注册中心凭据仅通过 Secret 或环境变量注入。
+- 生产 Provider 使用明文 Dubbo RPC（`dubbo` 协议，默认 Hessian2 序列化）；Nacos 注册中心凭据仅通过 Secret 或环境变量注入。

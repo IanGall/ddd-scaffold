@@ -7,6 +7,8 @@ spring:
 dubbo:
   application:
     qos-enable: ${symbol_dollar}{DUBBO_QOS_ENABLED:false}
+    # 元数据服务与业务服务保持同协议：不显式指定时 Dubbo 内部的兜底值是 tri
+    metadata-service-protocol: dubbo
 
 # 所有业务实例必须连接同一 Redis，并共享该命名空间以保证 ID 全局唯一。
 ddd:
