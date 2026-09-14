@@ -1,11 +1,13 @@
 #set( $symbol_dollar = '$' )
+# 凭证一律由环境变量注入；本地开发使用仓库根 .env.local（模板见 .env.example），生产由部署平台注入。
+# 地址与用户名保留本地默认值便于开箱启动；口令刻意不给默认值（缺失即启动失败，避免误用示例值）。
 dubbo:
   consumer:
     parameters:
       ssl-enabled: false
   registry:
-    address: ${symbol_dollar}{DUBBO_REGISTRY_ADDRESS}
-    username: ${symbol_dollar}{DUBBO_REGISTRY_USERNAME}
+    address: ${symbol_dollar}{DUBBO_REGISTRY_ADDRESS:nacos://127.0.0.1:8848}
+    username: ${symbol_dollar}{DUBBO_REGISTRY_USERNAME:nacos}
     password: ${symbol_dollar}{DUBBO_REGISTRY_PASSWORD}
     use-as-config-center: false
     use-as-metadata-center: true

@@ -21,6 +21,8 @@
                 <include>Dockerfile</include>
                 <include>__gitignore__</include>
                 <include>.env.example</include>
+                <!-- 构建上下文剔除项：与参考实现 gateway-app 保持一致，避免把本地日志打进构建上下文 -->
+                <include>.dockerignore</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
@@ -33,6 +35,8 @@
             <directory>src/main/resources</directory>
             <includes>
                 <include>application*.yml</include>
+                <!-- 与参考实现一致：网关日志需带 trace-id 且落盘，模板必须一并生成 -->
+                <include>logback-spring.xml</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
