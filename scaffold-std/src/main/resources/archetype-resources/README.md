@@ -88,10 +88,12 @@ public class OrderRepository {
 }
 ```
 
-Starter 通过 Redis 租约自动分配并续租 Worker ID，不需要应用手工配置 Worker ID。由应用分配的数据库主键应显式写入 ID，不能同时
-保留数据库自增。Session/Family 等非安全业务标识也通过领域端口适配该 Starter；Access Token、Refresh Token 等安全令牌
+Starter 通过 Redis 租约自动分配并续租 Worker ID，不需要应用手工配置 Worker ID。**不是所有表都需要它**：主键由应用生成时应显式写入
+ID 且不要声明自增；内部字典表、从属数据、关联表可以继续用数据库自增——两种方式不要混在同一张表上。Session/Family 等非安全
+业务标识也通过领域端口适配该 Starter；Access Token、Refresh Token 等安全令牌
 仍必须使用不可预测的安全随机值。`test` Profile 默认设置 `ddd.id-generator.enabled=false`，普通测试应提供确定性的 Fake ID
-生成器。
+生成器。需要让多个业务各自独占一段 Worker ID 区间时，声明 `ddd.id-generator.businesses` 并改为注入
+`cn.iantech.id.GlobalIdGeneratorProvider`，用 `forBusiness(...)` 在构造期解析本业务的生成器。
 
 <h2>Cases 示例</h2>
 

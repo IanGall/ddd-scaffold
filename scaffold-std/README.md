@@ -141,9 +141,12 @@ demo/
   `cn.iantech.id.GlobalIdGenerator` 后调用 `nextId()` 获取；
 - `trigger`：定时任务、消息监听、RPC 等外部触发入口，只调用 Domain Service 或 Cases Service。
 
-ID Starter 依赖 Redis 租约自动分配 Worker ID，不要求应用手工指定 Worker ID。应用生成的数据库主键必须显式写入并删除自增策略；
-Session/Family 等非安全业务标识通过领域端口适配该 Starter。Access/Refresh Token、渠道密钥及 AES IV 继续使用安全随机值。生成工程的
-`test` Profile 默认禁用真实租约，普通测试应提供确定性的 Fake ID 生成器。
+ID Starter 依赖 Redis 租约自动分配 Worker ID，不要求应用手工指定 Worker ID。**不是所有表都需要该 Starter**：主键由应用生成时
+必须显式写入 ID 且不要声明自增；内部字典表、从属数据、关联表可以继续用数据库自增，两者不要混在同一张表上（判据见
+`ddd-base/README.md` 的「是否需要全局 ID」）。Session/Family 等非安全业务标识通过领域端口适配该 Starter。Access/Refresh Token、
+渠道密钥及 AES IV 继续使用安全随机值。生成工程的
+`test` Profile 默认禁用真实租约，普通测试应提供确定性的 Fake ID 生成器。需要按业务隔离 Worker ID 时，可声明
+`ddd.id-generator.businesses` 并改注入 `cn.iantech.id.GlobalIdGeneratorProvider`，用法见 `ddd-base/README.md`。
 
 ## 4. 配置 RDC 制品仓库
 
