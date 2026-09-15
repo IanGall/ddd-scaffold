@@ -1,18 +1,12 @@
 package cn.iantech.scaffold;
 
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -62,13 +56,12 @@ class ArchetypeResourcePlaceholderTest {
         if (!Files.isDirectory(archetypeRoot)) {
             return List.of();
         }
-        Document metadata = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile.toFile());
-
-        List<FileSet> unfilteredFileSets = new ArrayList<>();
-        collectUnfilteredFileSets(metadata.getDocumentElement(), "", unfilteredFileSets);
+        List<ArchetypeFileSets.FileSet> unfilteredFileSets = ArchetypeFileSets.readAll(metadataFile).stream()
+                .filter(fileSet -> !fileSet.filtered())
+                .toList();
 
         List<String> violations = new ArrayList<>();
-        for (FileSet fileSet : unfilteredFileSets) {
+        for (ArchetypeFileSets.FileSet fileSet : unfilteredFileSets) {
             Path base = archetypeRoot.resolve(fileSet.baseDir());
             if (!Files.isDirectory(base)) {
                 continue;
@@ -85,99 +78,5 @@ class ArchetypeResourcePlaceholderTest {
             }
         }
         return violations;
-    }
-
-    /** 递归收集未过滤的 fileSet；baseDir 为相对 archetype-resources 的目录前缀。 */
-    private static void collectUnfilteredFileSets(Element parent, String parentDir, List<FileSet> target) {
-        for (Element fileSets : children(parent, "fileSets")) {
-            for (Element fileSet : children(fileSets, "fileSet")) {
-                String baseDir = join(parentDir, childText(fileSet, "directory"));
-                if (!Boolean.parseBoolean(fileSet.getAttribute("filtered"))) {
-                    target.add(new FileSet(baseDir, includes(fileSet)));
-                }
-            }
-        }
-        for (Element modules : children(parent, "modules")) {
-            for (Element module : children(modules, "module")) {
-                collectUnfilteredFileSets(module, join(parentDir, module.getAttribute("dir")), target);
-            }
-        }
-    }
-
-    private static List<String> includes(Element fileSet) {
-        List<String> includes = new ArrayList<>();
-        for (Element includesElement : children(fileSet, "includes")) {
-            for (Element include : children(includesElement, "include")) {
-                includes.add(include.getTextContent().trim());
-            }
-        }
-        return includes;
-    }
-
-    private static String childText(Element parent, String tagName) {
-        List<Element> elements = children(parent, tagName);
-        return elements.isEmpty() ? "" : elements.getFirst().getTextContent().trim();
-    }
-
-    private static String join(String left, String right) {
-        if (left.isEmpty()) {
-            return right;
-        }
-        return right.isEmpty() ? left : left + "/" + right;
-    }
-
-    private static List<Element> children(Element parent, String tagName) {
-        List<Element> result = new ArrayList<>();
-        NodeList nodes = parent.getChildNodes();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE && tagName.equals(node.getNodeName())) {
-                result.add((Element) node);
-            }
-        }
-        return result;
-    }
-
-    /** 单个未过滤 fileSet：baseDir 相对 archetype-resources，includes 为 glob 表达式。 */
-    private record FileSet(String baseDir, List<String> includes) {
-
-        boolean matches(String relativeToArchetypeRoot) {
-            String prefix = baseDir.isEmpty() ? "" : baseDir + "/";
-            if (!relativeToArchetypeRoot.startsWith(prefix)) {
-                return false;
-            }
-            String relative = relativeToArchetypeRoot.substring(prefix.length());
-            return includes.stream().anyMatch(include -> globToPattern(include).matcher(relative).matches());
-        }
-
-        /** 将 archetype glob 转为正则：** 跨目录，* 限单层，? 单字符。 */
-        private static Pattern globToPattern(String glob) {
-            StringBuilder regex = new StringBuilder();
-            for (int i = 0; i < glob.length(); i++) {
-                char current = glob.charAt(i);
-                if (current == '*') {
-                    boolean doubleStar = i + 1 < glob.length() && glob.charAt(i + 1) == '*';
-                    if (doubleStar) {
-                        i++;
-                        if (i + 1 < glob.length() && glob.charAt(i + 1) == '/') {
-                            i++;
-                            regex.append("(?:.*/)?");
-                        } else {
-                            regex.append(".*");
-                        }
-                    } else {
-                        regex.append("[^/]*");
-                    }
-                } else if (current == '?') {
-                    regex.append("[^/]");
-                } else {
-                    if ("\\.[]{}()+-^$|".indexOf(current) >= 0) {
-                        regex.append('\\');
-                    }
-                    regex.append(current);
-                }
-            }
-            return Pattern.compile(regex.toString());
-        }
     }
 }
