@@ -1,7 +1,7 @@
 # 基础镜像：eclipse-temurin 官方 manifest list 同时提供 linux/amd64 与 linux/arm64，
 # 本文件不含任何架构相关指令，因此同一份 Dockerfile 可直接产出双架构镜像。
 # 构建方式见同目录 build.sh：默认出本机架构，指定 PLATFORMS=linux/amd64,linux/arm64 出双架构。
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 
 # 配置
 ENV PARAMS=""
@@ -15,13 +15,9 @@ ENV SPRING_PROFILES_ACTIVE=prod
 # 容器内存感知的 JVM 参数，部署时可用 JAVA_OPTS 覆盖
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
 
-# 时区（与网关保持一致，避免跨服务日志/时间口径不同）
-# alpine 默认不带 tzdata：缺了 /usr/share/zoneinfo 时下面的软链会指向不存在的文件、容器时间静默退回 UTC，
-# 所以必须先装 tzdata 再建软链。
+# 时区（与网关保持一致，避免跨服务日志/时间口径不同）；基础镜像自带 tzdata，直接建软链即可
 ENV TZ=Asia/Shanghai
-RUN apk add --no-cache tzdata \
-    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 添加应用
 ADD target/${artifactId}.jar /${artifactId}.jar
