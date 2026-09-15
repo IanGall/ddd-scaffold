@@ -192,7 +192,9 @@ docs/dev-ops/start-with-coverage.sh
 使用流程：
 
 ```bash
-# 1. 构建镜像（在 ${rootArtifactId}-boot 模块下执行）
+# 1. 构建镜像（在 ${rootArtifactId}-boot 模块下执行；脚本自动识别本机架构）
+#    arm64 机器出 linux/arm64、amd64 机器出 linux/amd64；混架构集群用
+#    IMAGE=<可推送仓库>/<镜像名> PLATFORMS=linux/amd64,linux/arm64 bash build.sh 推多架构镜像
 bash build.sh                       # system/${rootArtifactId}-boot:${version}
 
 # 2. 创建凭证（真实值不入库）

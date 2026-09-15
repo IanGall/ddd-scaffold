@@ -19,6 +19,8 @@
                 <include>README.md</include>
                 <include>agents.md</include>
                 <include>Dockerfile</include>
+                <!-- build.sh 使用 ${artifactId}/${version} 变量，需过滤替换 -->
+                <include>build.sh</include>
                 <include>__gitignore__</include>
                 <include>.env.example</include>
                 <!-- 构建上下文剔除项：与参考实现 gateway-app 保持一致，避免把本地日志打进构建上下文 -->

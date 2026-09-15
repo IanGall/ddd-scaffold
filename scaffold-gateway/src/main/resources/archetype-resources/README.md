@@ -92,8 +92,8 @@ Nacos 用户名密码认证。
 使用流程：
 
 ```bash
-# 1. 构建镜像（在生成工程根目录执行）
-docker build -t system/${rootArtifactId}:${version} -f Dockerfile .
+# 1. 构建镜像（在生成工程根目录执行；脚本自动识别本机架构，出 arm64 还是 amd64 无需手工指定）
+bash build.sh                        # system/${rootArtifactId}:${version}
 
 # 2. 创建凭证（真实值不入库）
 kubectl create secret generic ${rootArtifactId}-secret -n <namespace> \
