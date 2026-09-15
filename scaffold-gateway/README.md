@@ -44,6 +44,9 @@ mvn archetype:generate \
 ID，不再使用固定租户配置。Dubbo 消费端使用明文 `dubbo` 协议，注册中心通过
 `DUBBO_REGISTRY_USERNAME` 和 `DUBBO_REGISTRY_PASSWORD` 认证。
 
+生成工程自带 `dev-ops/k8s/` 部署清单（Deployment / Service / ConfigMap / Secret 示例 / HPA / PDB / Ingress），探针用
+`/actuator/health`；这些模板开启了 Velocity 过滤，改动时不要在 YAML 正文书写 shell 风格的变量占位符。
+
 认证 RPC 的异常由 `GatewayAuthClient` 沿 cause 链保留 `AppException`，未声明的 RPC 失败统一转换为
 `AUTH_UNAVAILABLE`。过滤器将异常委托给唯一的 `GatewayExceptionHandler`，由语义码统一决定 HTTP 状态和 `data: null`
 响应；业务代码不得手写 JSON、解析 Dubbo `GenericException` 或自行维护状态码映射。

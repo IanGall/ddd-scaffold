@@ -1,0 +1,30 @@
+# 网关是唯一对外入口，这里把全部路径透传给网关，由网关自己完成路由与鉴权。
+#
+# 刻意不做的事：
+# 1. 不在 Ingress 复制网关的路径白名单：白名单的唯一真相在应用侧（有契约测试交叉校验），
+#    复制一份就是第二份真相，改一处忘一处会放大公开面。
+# 2. 不配 TLS：按既有部署约束保持 HTTP，TLS 由集群入口统一终结。
+# 3. 不配客户端 IP 相关注解：若 Controller 只是追加客户端自带的 X-Forwarded-For，
+#    伪造它就能绕过按 IP 做的登录风控。正式做法是先在 Controller 层统一 strip 再重写该头，
+#    验证后再用部署层配置让应用信任代理（不要写进 application.yml）。
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${rootArtifactId}
+  labels:
+    app.kubernetes.io/name: ${rootArtifactId}
+spec:
+  # 与目标集群的 Ingress Controller 对应（必须是小写 DNS 标签）；例如 apisix / nginx
+  ingressClassName: ingress-class-placeholder
+  rules:
+    # 占位域名，部署前替换为真实域名
+    - host: gateway.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${rootArtifactId}
+                port:
+                  number: 8092

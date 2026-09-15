@@ -16,4 +16,5 @@
   `GenericException` 或复制状态码映射。
 - `X-Platform-Token` 仅转发给 `IPlatformAccountService`，Gateway 禁止保存或校验，且不得进入租户 RBAC 权限体系。
 - Dubbo 消费端使用明文 RPC，注册中心凭据通过环境变量注入。
+- k8s 清单（`dev-ops/k8s/`）：探针与 Service 端口用 8092 的 HTTP；Ingress 只做全量路径透传，禁止把路径白名单或鉴权规则复制到 Ingress；真实凭证不入库，只保留 `secret.yaml.example`，改动清单后跑一次 `kubectl apply --dry-run=server`。
 - 新增代码和注释使用中文，优先复用 `ddd-common`。

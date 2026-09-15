@@ -75,6 +75,53 @@ Nacos 用户名密码认证。
 `AUTH_UNAVAILABLE`。过滤器将异常委托给唯一的 `GatewayExceptionHandler`，由 `Constants.ResponseCode` 统一决定 HTTP 状态和
 `data: null` 响应；不要在过滤器或控制器中手写 JSON、解析 Dubbo `GenericException` 或重复维护状态码映射。
 
+<h2>Kubernetes 部署</h2>
+
+生成工程自带一套原生 k8s 清单（不需要 Helm/Kustomize），位于 `dev-ops/k8s/`：
+
+| 文件 | 内容 |
+| --- | --- |
+| `deployment.yaml` | 2 副本、HTTP 8092、`/actuator/health` 探针、emptyDir、优雅停机 |
+| `service.yaml` | ClusterIP，`http 8092` |
+| `configmap.yaml` | 非敏感配置（Nacos 地址与用户名） |
+| `secret.yaml.example` | 敏感配置**键名样例**，不含真实值 |
+| `hpa.yaml` | CPU 70%，2 → 6 |
+| `pdb.yaml` | `minAvailable: 1` |
+| `ingress.yaml` | 唯一对外入口，全量路径透传给网关 |
+
+使用流程：
+
+```bash
+# 1. 构建镜像（在生成工程根目录执行）
+docker build -t system/${rootArtifactId}:${version} -f Dockerfile .
+
+# 2. 创建凭证（真实值不入库）
+kubectl create secret generic ${rootArtifactId}-secret -n <namespace> \
+  --from-literal=DUBBO_REGISTRY_PASSWORD='...'
+
+# 3. 按顺序部署
+kubectl apply -n <namespace> -f dev-ops/k8s/configmap.yaml
+kubectl apply -n <namespace> -f dev-ops/k8s/deployment.yaml
+kubectl apply -n <namespace> -f dev-ops/k8s/service.yaml
+kubectl apply -n <namespace> -f dev-ops/k8s/ingress.yaml
+kubectl apply -n <namespace> -f dev-ops/k8s/hpa.yaml
+kubectl apply -n <namespace> -f dev-ops/k8s/pdb.yaml
+```
+
+要点：
+
+- `ingress.yaml` 的 `spec.ingressClassName` 与 `host` 都是占位，部署前按目标集群替换；Ingress 只做全量路径透传，
+  路径白名单的唯一真相在应用侧，不要复制到 Ingress。
+- 探针用 `GET /actuator/health`（actuator 只暴露 health）；网关不持有数据源，health 为 UP 即代表可服务。
+- `secret.yaml.example` 的扩展名不是 `.yaml`，因此 `kubectl apply -f <目录>` 不会把它纳入；真实 Secret 用命令式创建。
+- 修改 ConfigMap / Secret 后必须手动滚动重启：`kubectl rollout restart deployment/${rootArtifactId} -n <namespace>`。
+- 客户端 IP：应用取的是连接地址（`getRemoteAddr()`），不采信客户端提交的 `X-Forwarded-For`。启用按 IP 的登录风控前，
+  先在 Ingress Controller 层统一 strip 再重写该头，验证后再用部署层配置让应用信任代理（不要写进 `application.yml`）。
+- 清单文件名固定为 `.yaml` / `.yaml.example`：新增文件类型时必须在骨架的 `archetype-metadata.xml` 里补对应的 `include`，
+  否则文件不会进入生成工程（护栏 `scaffold-template-guard` 会拦截这种漏配）。
+- 清单是 Velocity 模板（`filtered="true"`），模板变量会被替换成生成工程的实际值；**不要**在 YAML 正文里书写 shell 风格的
+  变量占位符，环境变量一律通过 `envFrom` 注入。
+
 <h2>分布式 E2E 覆盖率</h2>
 
 本网关已内置接入分布式覆盖率所需的全部文件：

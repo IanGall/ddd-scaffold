@@ -1,0 +1,16 @@
+# 网关是唯一对外入口，Service 只做集群内负载均衡，对外经 Ingress 暴露（见 ingress.yaml）。
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${rootArtifactId}
+  labels:
+    app.kubernetes.io/name: ${rootArtifactId}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ${rootArtifactId}
+  ports:
+    - name: http
+      port: 8092
+      targetPort: http
+      protocol: TCP

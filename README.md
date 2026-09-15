@@ -55,6 +55,9 @@ mvn -f scaffold-gateway/pom.xml clean verify
 - `scaffold-std` 的 Smoke 工程验证 api / domain / infrastructure / trigger / boot 五个模块可协作构建，并断言不存在多余的 Application 模块；
 - `scaffold-gateway` 的测试网关执行上下文测试、HTTP 安全链路测试与 RPC 异常映射测试。
 
+此外 `scaffold-template-guard` 模块对两个骨架做模板静态护栏：未开启 Velocity 过滤的 fileSet 不得含转义占位符，
+且 `archetype-resources` 下每个文件（模块 pom 除外）都必须被某个 fileSet 命中——历史上出现过 include 漏配导致文件从不生成的事故。
+
 ## 使用骨架生成工程
 
 以标准服务为例（网关参数见 [scaffold-gateway/README.md](scaffold-gateway/README.md)）：

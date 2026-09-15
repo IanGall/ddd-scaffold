@@ -1,0 +1,43 @@
+# 水平扩缩容。
+#
+# 副本上限的约束来自 ID 生成器：
+# - 默认（单生成器模式）下 WorkerId 由 Redis 租约动态分配，池容量为 2^worker-id-bit-length（默认 1024），
+#   副本数远小于它即可；
+# - 如果生成工程后续在 application.yml 声明了 ddd.id-generator.businesses，则**每个业务的副本数不得超过
+#   worker-id-block-size**，超限时新副本拿不到 WorkerId 租约并在启动期失败。
+#
+# 缩容留 300s 稳定窗：实例会反复续租 / 释放 WorkerId，频繁伸缩的收益低于其抖动成本。
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${rootArtifactId}-boot
+  labels:
+    app.kubernetes.io/name: ${rootArtifactId}-boot
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${rootArtifactId}-boot
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    # Utilization 口径 = 实际用量 / requests，因此 Deployment 必须设置 requests.cpu，否则指标为 unknown
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60

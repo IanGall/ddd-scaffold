@@ -1,10 +1,34 @@
 server:
   port: 8091
 
-# 生产数据库连接必须由部署环境注入，禁止在模板中写入地址或凭据。
-# 需要时在此补充 spring.datasource.* / spring.data.redis.* / dubbo.registry.* 的 ${ENV} 引用（不保留可用默认值）。
+# 生产环境的地址与凭证一律由部署环境注入（k8s 下由 ConfigMap / Secret 通过 envFrom 注入，见 docs/dev-ops/k8s/），
+# 这里刻意不给可用默认值：漏注入时以配置错误启动失败，而不是拼出畸形 URL 或用空账号连库。
+spring:
+  data:
+    redis:
+      host: ${symbol_dollar}{REDIS_HOST}
+      port: ${symbol_dollar}{REDIS_PORT:6379}
+      password: ${symbol_dollar}{REDIS_PASSWORD}
+      database: ${symbol_dollar}{REDIS_DATABASE:0}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${symbol_dollar}{MYSQL_HOST}:${symbol_dollar}{MYSQL_PORT:3306}/${symbol_dollar}{MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false
+    username: ${symbol_dollar}{MYSQL_USERNAME}
+    password: ${symbol_dollar}{MYSQL_PASSWORD}
+
+mybatis:
+  mapper-locations: classpath:/mybatis/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
 
 dubbo:
+  registry:
+    id: nacos-registry
+    address: nacos://${symbol_dollar}{NACOS_HOST}:8848
+    username: ${symbol_dollar}{NACOS_USERNAME}
+    password: ${symbol_dollar}{NACOS_PASSWORD}
+    parameters:
+      enable-empty-protection: true
   protocol:
     name: dubbo
     port: ${symbol_dollar}{DUBBO_PROTOCOL_PORT:20880}

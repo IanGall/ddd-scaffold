@@ -1,0 +1,15 @@
+# 非敏感配置。键名与 application-prod.yml 的环境变量引用一一对应。
+#
+# 网关不连接任何数据源（会话与鉴权都在认证服务侧），因此这里只有注册中心相关项。
+# 敏感项放 ${rootArtifactId}-secret（见 secret.yaml.example），不要在这里重复声明。
+# SPRING_PROFILES_ACTIVE=prod 与 TZ 已由 Dockerfile 固定，不在此处覆盖。
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${rootArtifactId}-config
+  labels:
+    app.kubernetes.io/name: ${rootArtifactId}
+data:
+  DUBBO_REGISTRY_ADDRESS: "nacos://nacos.infra.svc.cluster.local:8848"
+  DUBBO_REGISTRY_USERNAME: "nacos"
+  # Nacos 2.x 客户端还需要 gRPC 端口 9848（= 8848+1000），若加 NetworkPolicy 必须一并放行

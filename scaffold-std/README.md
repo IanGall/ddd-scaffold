@@ -265,3 +265,6 @@ mvn clean package -DskipTests
 - 标准脚手架生成的工程默认不包含 HTTP 触发能力，不内置 Spring MVC 依赖与示例 Controller。
 - 如需 HTTP 接口能力，请在生成工程根目录构建时启用 `-Phttp`，为 `*-trigger` 模块引入 `spring-boot-starter-web`。
 - 启用 `-Phttp` 后，再在 `*-trigger` 模块补充控制器实现。
+- 生成的工程自带 `docs/dev-ops/k8s/` 部署清单（Deployment / Service / ConfigMap / Secret 示例 / HPA / PDB）。探针与 Service
+  端口都指向 Dubbo 20880——默认能力下没有 servlet 容器，`server.port` 不会被监听；这些模板开启了 Velocity 过滤，改动时不要
+  在 YAML 正文书写 shell 风格的变量占位符。

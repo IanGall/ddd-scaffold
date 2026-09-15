@@ -1,0 +1,33 @@
+# 非敏感配置。键名与 application-prod.yml 的环境变量引用一一对应。
+#
+# 敏感项一律放 ${rootArtifactId}-boot-secret（见 secret.yaml.example），不要在这里重复声明。
+# SPRING_PROFILES_ACTIVE=prod 与 TZ 已由 Dockerfile 固定，不在此处覆盖。
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${rootArtifactId}-boot-config
+  labels:
+    app.kubernetes.io/name: ${rootArtifactId}-boot
+data:
+  # ---------------- Dubbo / 注册中心 ----------------
+  # QoS 端口固定 22222，多副本落在同一节点会端口冲突；它也不是优雅下线的手段（下线靠 SIGTERM + 注册中心反注册）
+  DUBBO_QOS_ENABLED: "false"
+  DUBBO_PROTOCOL_PORT: "20880"
+  NACOS_HOST: "nacos.infra.svc.cluster.local"
+  NACOS_USERNAME: "nacos"
+  # Nacos 2.x 客户端还需要 gRPC 端口 9848（= 8848+1000），若加 NetworkPolicy 必须一并放行
+
+  # ---------------- MySQL ----------------
+  MYSQL_HOST: "mysql.infra.svc.cluster.local"
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: "${rootArtifactId}"
+  MYSQL_USERNAME: "ian_app"
+
+  # ---------------- Redis ----------------
+  REDIS_HOST: "redis.infra.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_DATABASE: "0"
+
+  # ---------------- 全局唯一 ID ----------------
+  # 所有需要全局唯一 ID 的实例必须连同一个 Redis 且共享该命名空间，否则会互相占用 WorkerId
+  DDD_ID_GENERATOR_NAMESPACE: "ddd-global-id"

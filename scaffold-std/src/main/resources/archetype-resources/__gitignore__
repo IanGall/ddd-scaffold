@@ -33,8 +33,12 @@ build/
 
 ### Mac OS ###
 .DS_Store
-# 本地覆盖率工具脚本不随生成工程入库
+# 本地覆盖率工具脚本不随生成工程入库，但 k8s 部署清单要入库
 /docs/dev-ops/**
+!/docs/dev-ops/k8s/
+!/docs/dev-ops/k8s/**
+# k8s 真实 Secret 禁止入库：只提交 secret.yaml.example，真实值用 kubectl create secret 创建
+docs/dev-ops/k8s/secret.yaml
 ${rootArtifactId}-boot/data/**
 
 # 本地环境变量（含真实凭证，禁止入库）；模板见 .env.example

@@ -20,7 +20,9 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 添加应用
 ADD target/${artifactId}.jar /${artifactId}.jar
 
-EXPOSE 8091
+# 骨架默认不引入 HTTP 触发能力（spring-boot-starter-web 仅在 -Phttp 下激活），运行期只有 Dubbo Provider，
+# 因此暴露 Dubbo 端口；application.yml 里的 server.port 在未启用 -Phttp 时不会被监听。
+EXPOSE 20880
 
 # exec 使 java 取代 sh 成为 PID 1，正确接收 SIGTERM
 ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS -jar /${artifactId}.jar $PARAMS"]

@@ -176,6 +176,52 @@ docs/dev-ops/start-with-coverage.sh
 - 拆分出新模块时，记得把它补进注册的目录列表（以及 `application-coverage.yml`）
 - 改完代码必须 clean 重建再重启服务，否则 classId 不一致会让覆盖率静默变成 0%
 
+<h2>Kubernetes 部署</h2>
+
+生成工程自带一套原生 k8s 清单（不需要 Helm/Kustomize），位于 `docs/dev-ops/k8s/`：
+
+| 文件 | 内容 |
+| --- | --- |
+| `deployment.yaml` | 2 副本、Dubbo 20880、TCP 探针、emptyDir、preStop 优雅停机 |
+| `service.yaml` | ClusterIP，仅 20880（运维入口，服务发现由 Nacos 承担） |
+| `configmap.yaml` | 非敏感配置（MySQL / Redis / Nacos 地址与用户名等） |
+| `secret.yaml.example` | 敏感配置**键名样例**，不含真实值 |
+| `hpa.yaml` | CPU 70%，2 → 8 |
+| `pdb.yaml` | `minAvailable: 1` |
+
+使用流程：
+
+```bash
+# 1. 构建镜像（在 ${rootArtifactId}-boot 模块下执行）
+bash build.sh                       # system/${rootArtifactId}-boot:${version}
+
+# 2. 创建凭证（真实值不入库）
+kubectl create secret generic ${rootArtifactId}-boot-secret -n <namespace> \
+  --from-literal=MYSQL_PASSWORD='...' --from-literal=REDIS_PASSWORD='...' --from-literal=NACOS_PASSWORD='...'
+
+# 3. 按顺序部署
+kubectl apply -n <namespace> -f docs/dev-ops/k8s/configmap.yaml
+kubectl apply -n <namespace> -f docs/dev-ops/k8s/deployment.yaml
+kubectl apply -n <namespace> -f docs/dev-ops/k8s/service.yaml
+kubectl apply -n <namespace> -f docs/dev-ops/k8s/hpa.yaml
+kubectl apply -n <namespace> -f docs/dev-ops/k8s/pdb.yaml
+```
+
+要点：
+
+- 探针探的是 **Dubbo 20880**：骨架默认不引入 HTTP 触发能力，运行期没有 servlet 容器，`application.yml` 里的
+  `server.port: 8091` 不会被监听。启用 `-Phttp` 后请自行补 HTTP 端口、探针与 Service 端口。
+- `secret.yaml.example` 的扩展名不是 `.yaml`，因此 `kubectl apply -f <目录>` 不会把它纳入；真实 Secret 用命令式创建。
+  不要把完整的本地环境变量文件整体导入 Secret——其中的 `MYSQL_USERNAME` 会覆盖 ConfigMap 的同名键（`envFrom` 中同名键以
+  Secret 为准）。
+- 修改 ConfigMap / Secret 后必须手动滚动重启：`kubectl rollout restart deployment/${rootArtifactId}-boot -n <namespace>`。
+- 副本上限受全局 ID 约束：默认（单生成器模式）WorkerId 由 Redis 租约动态分配，池容量足够；若后续声明了
+  `ddd.id-generator.businesses`，则每个业务的副本数不得超过 `worker-id-block-size`。
+- 清单文件名固定为 `.yaml` / `.yaml.example`：新增文件类型时必须在骨架的 `archetype-metadata.xml` 里补对应的 `include`，
+  否则文件不会进入生成工程（护栏 `scaffold-template-guard` 会拦截这种漏配）。
+- 清单是 Velocity 模板（`filtered="true"`），模板变量会被替换成生成工程的实际值；**不要**在 YAML 正文里书写 shell 风格的
+  变量占位符，环境变量一律通过 `envFrom` 注入。
+
 <h2>上下文与租户隔离</h2>
 
 - Trigger 和 Provider 按边界引入 Web/Dubbo 上下文适配器，并将可信上下文转换为显式领域参数。

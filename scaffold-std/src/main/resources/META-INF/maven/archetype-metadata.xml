@@ -7,14 +7,33 @@
   </requiredProperties>
   <fileSets>
     <!--
-      docs/dev-ops 目前只分发本地覆盖率工具脚本。
+      docs/dev-ops 分发本地覆盖率工具脚本与 k8s 部署清单。
       注意：未被任何 fileSet 匹配的模板文件不会进入生成工程（历史上 shardingsphere conf 的 .yaml
       即因 include 只列了 **/*.yml 而从未生成）；新增文件类型时必须同步补充 include。
+      scaffold-template-guard 会断言 archetype-resources 下每个文件（模块 pom 除外）都至少被某个 fileSet 命中。
     -->
     <fileSet encoding="UTF-8">
       <directory>docs/dev-ops</directory>
       <includes>
         <include>**/*.sh</include>
+      </includes>
+    </fileSet>
+
+    <!--
+      k8s 部署清单：镜像名与资源名来自模板变量，必须开启 Velocity 过滤（filtered="true"），
+      否则生成物里会残留字面量占位符、kubectl apply 直接失败。
+      规则：YAML 正文只通过 envFrom 注入环境变量；确需在模板里书写字面量占位符时，
+      必须写成 Velocity 的转义形式（symbol_dollar 变量），不能裸写。
+      反向约束：filtered 非 true 的 fileSet 会被 scaffold-template-guard 扫描，文件内一旦出现该转义
+      变量就测挂，因此这两个 fileSet 的 filtered 值不能随手改。
+      include 说明：**/*.yaml 不匹配 secret.yaml.example（它以 .example 结尾），故单独列出；
+      该扩展名是刻意的 —— kubectl apply -f <目录> 只收集 .yaml/.yml/.json，示例文件不会被误 apply。
+    -->
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>docs/dev-ops/k8s</directory>
+      <includes>
+        <include>**/*.yaml</include>
+        <include>**/*.yaml.example</include>
       </includes>
     </fileSet>
 

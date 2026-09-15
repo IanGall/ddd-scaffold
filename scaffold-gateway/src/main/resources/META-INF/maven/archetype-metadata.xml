@@ -52,5 +52,22 @@
                 <include>**/*.sh</include>
             </includes>
         </fileSet>
+        <!--
+            k8s 部署清单：镜像名与资源名来自模板变量，必须开启 Velocity 过滤（filtered="true"），
+            否则生成物里会残留字面量占位符、kubectl apply 直接失败。
+            规则：YAML 正文只通过 envFrom 注入环境变量；确需在模板里书写字面量占位符时，必须使用
+            Velocity 的转义形式（symbol_dollar 变量，本目录其它模板文件里已有先例），不能裸写。
+            反向约束：filtered 非 true 的 fileSet 会被 scaffold-template-guard 扫描，文件内一旦出现该转义
+            变量就测挂，因此上面的 dev-ops/**/*.sh 与本 fileSet 的 filtered 值都不能随手改。
+            include 说明：**/*.yaml 不匹配 secret.yaml.example（它以 .example 结尾），故单独列出；
+            该扩展名是刻意的 —— kubectl apply -f <目录> 只收集 .yaml/.yml/.json，示例文件不会被误 apply。
+        -->
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>dev-ops/k8s</directory>
+            <includes>
+                <include>**/*.yaml</include>
+                <include>**/*.yaml.example</include>
+            </includes>
+        </fileSet>
     </fileSets>
 </archetype-descriptor>
